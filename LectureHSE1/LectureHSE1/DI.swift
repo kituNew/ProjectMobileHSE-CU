@@ -23,12 +23,20 @@ class DI {
         let reminderVC = ReminderView(viewModel: reminderVM)
         let navForReminder = UINavigationController(rootViewController: reminderVC)
         navForReminder.tabBarItem = UITabBarItem(
-            title: "Список",
-            image: UIImage(systemName: "list.bullet"),
+            title: "Задачи",
+            image: UIImage(systemName: "checkmark.circle.fill"),
             tag: 1
         )
+        
+        let noteVC = NoteView()
+        let navForNotes = UINavigationController(rootViewController: noteVC)
+        navForNotes.tabBarItem = UITabBarItem(
+            title: "Записи",
+            image: UIImage(systemName: "list.bullet"),
+            tag: 2
+        )
 
-        tabBar.viewControllers = [navForHome, navForReminder]
+        tabBar.viewControllers = [navForHome, navForReminder, navForNotes]
 
         return tabBar
     }

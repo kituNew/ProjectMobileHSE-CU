@@ -12,7 +12,6 @@ class ReminderViewModel : ViewModel() {
 
     private val _reminders = mutableStateListOf(
         Reminder(
-            id = 1L,
             text = "Сходить в магазин",
             description = "зайти в Пятерочку по адресу: Новомосковская",
             priority = Priority.MEDIUM,
@@ -20,7 +19,6 @@ class ReminderViewModel : ViewModel() {
             toDate = "12.06 12:00"
         ),
         Reminder(
-            id = 2L,
             text = "Сходить в магазин",
             description = "зайти в Пятерочку по адресу: Новомосковская",
             priority = Priority.HIGH,
@@ -28,7 +26,6 @@ class ReminderViewModel : ViewModel() {
             toDate = "12.06 12:00"
         ),
         Reminder(
-            id = 3L,
             text = "Сходить в магазин",
             description = "зайти в Пятерочку по адресу: Новомосковская",
             priority = Priority.LOW,
@@ -38,22 +35,24 @@ class ReminderViewModel : ViewModel() {
     )
     val reminders: List<Reminder> get() = _reminders
 
-    private val removeDelayMs = 1000L
+    private val removeDelayMs = 1000L   // 1 сек
 
     fun onReminderClicked(reminder: Reminder) {
         val index = _reminders.indexOfFirst { it.id == reminder.id }
         if (index == -1) return
 
-        // помечаем как выполненный
         _reminders[index] = _reminders[index].copy(isDone = true)
 
         viewModelScope.launch {
             delay(removeDelayMs)
-            // если он всё ещё есть и всё ещё done — удаляем
             val currentIndex = _reminders.indexOfFirst { it.id == reminder.id }
             if (currentIndex != -1 && _reminders[currentIndex].isDone) {
                 _reminders.removeAt(currentIndex)
             }
         }
+    }
+
+    fun addReminder(reminder: Reminder) {
+        _reminders.add(reminder)
     }
 }

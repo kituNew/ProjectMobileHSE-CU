@@ -1,7 +1,9 @@
 package com.example.projectmobileandroid.Reminder.Model
 
+import java.util.UUID
+
 data class Reminder(
-    val id: Long,
+    val id: String = UUID.randomUUID().toString(),
     val text: String,
     val description: String,
     val priority: Priority,
