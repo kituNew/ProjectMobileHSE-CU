@@ -255,7 +255,9 @@ class ReminderDetails: UIViewController {
     }
     
     @objc func didTapSaveButton() {
-        let reminder = Reminder(text: titleTextField.text ?? "",
+        guard let text = titleTextField.text else { return }
+        guard !text.isEmpty else { return }
+        let reminder = Reminder(text: text,
                                 description: descriptionTextField.text ?? "",
                                 priority: currentPriority,
                                 flag: flagSwitch.isOn,
