@@ -46,7 +46,12 @@ final class ReminderView: UIViewController {
     }()
     
     @objc private func didTapButton() {
-        self.present(ReminderDetails(), animated: true)
+        self.present(ReminderDetails(addNewReminder: { [weak self] reminder in
+            guard let self = self else { return }
+            self.viewModel.reminders.append(reminder)
+            self.items.append(reminder)
+            self.tableView.reloadData()
+        } ), animated: true)
     }
 
     override func viewDidLoad() {

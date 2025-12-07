@@ -7,9 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -21,8 +21,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import com.example.projectmobileandroid.Home.View.HomeView
+import com.example.projectmobileandroid.Notes.View.NotesView
+import com.example.projectmobileandroid.Reminder.View.ReminderView
 import com.example.projectmobileandroid.ui.theme.ProjectMobileAndroidTheme
 
 class MainActivity : ComponentActivity() {
@@ -40,7 +42,7 @@ class MainActivity : ComponentActivity() {
 @PreviewScreenSizes
 @Composable
 fun ProjectMobileAndroidApp() {
-    var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
+    var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.Reminder) }
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -60,10 +62,14 @@ fun ProjectMobileAndroidApp() {
         }
     ) {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Greeting(
-                name = "Android",
-                modifier = Modifier.padding(innerPadding)
-            )
+            when (currentDestination) {
+                AppDestinations.HOME ->
+                    HomeView(modifier = Modifier.padding(innerPadding))
+                AppDestinations.Reminder ->
+                    ReminderView(modifier = Modifier.padding(innerPadding))
+                AppDestinations.Notes ->
+                    NotesView(modifier = Modifier.padding(innerPadding))
+            }
         }
     }
 }
@@ -72,23 +78,7 @@ enum class AppDestinations(
     val label: String,
     val icon: ImageVector,
 ) {
-    HOME("Home", Icons.Default.Home),
-    FAVORITES("Favorites", Icons.Default.Favorite),
-    PROFILE("Profile", Icons.Default.AccountBox),
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ProjectMobileAndroidTheme {
-        Greeting("Android")
-    }
+    HOME("Главная", Icons.Default.Home),
+    Reminder("Задачи", Icons.Default.CheckCircle),
+    Notes("Записи", Icons.Default.List),
 }
