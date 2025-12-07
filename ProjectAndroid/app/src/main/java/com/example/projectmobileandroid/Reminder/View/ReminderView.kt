@@ -1,9 +1,14 @@
 package com.example.projectmobileandroid.Reminder.View
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,22 +27,39 @@ fun ReminderView(
     modifier: Modifier = Modifier,
     viewModel: ReminderViewModel = viewModel()
 ) {
+    val animDuration = 1000
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Заголовок
-        Text(
-            text = "Задачи",
-            style = MaterialTheme.typography.headlineLarge
-        )
+        Text("Задачи", style = MaterialTheme.typography.headlineLarge)
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(Modifier.height(16.dp))
 
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            items(viewModel.reminders) { reminder ->
-                ReminderCard(reminder)
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(
+                items = viewModel.reminders,
+                key = { it.id }
+            ) { reminder ->
+                AnimatedVisibility(
+                    visible = !reminder.isDone,
+                    exit = fadeOut(
+                        animationSpec = tween(animDuration)
+                    ) + shrinkVertically(
+                        animationSpec = tween(animDuration)
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    ReminderCard(
+                        reminder = reminder,
+                        onClick = { viewModel.onReminderClicked(reminder) }
+                    )
+                }
             }
         }
     }
