@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.example.projectmobileandroid.Home.View.HomeView
+import com.example.projectmobileandroid.Home.View.ThreadToCoroutineScreen
 import com.example.projectmobileandroid.Notes.View.NotesView
 import com.example.projectmobileandroid.Reminder.View.ReminderView
 import com.example.projectmobileandroid.ui.theme.ProjectMobileAndroidTheme

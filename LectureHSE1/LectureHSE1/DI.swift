@@ -10,8 +10,10 @@ import UIKit
 class DI {
     func makeTabBarController() -> UITabBarController {
         let tabBar = UITabBarController()
-
-        let homeVC = HomeView()
+        
+        let webSocketClient = WebSocketClient()
+        let homeVM = HomeViewModel(webSocketClient: webSocketClient)
+        let homeVC = HomeView(viewModel: homeVM)
         let navForHome = UINavigationController(rootViewController: homeVC)
         navForHome.tabBarItem = UITabBarItem(
             title: "Главная",

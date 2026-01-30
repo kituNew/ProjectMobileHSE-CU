@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.sp
 import com.example.projectmobileandroid.Reminder.ViewModel.ReminderViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-
 @Composable
 fun ReminderView(
     modifier: Modifier = Modifier,
