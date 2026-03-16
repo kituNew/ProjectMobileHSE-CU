@@ -1,0 +1,7 @@
+package com.example.projectmobileandroid.Notes.Model
+
+data class NoteItem(
+    val id: Long,
+    val title: String,
+    val description: String
+)

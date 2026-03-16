@@ -10,9 +10,10 @@ import UIKit
 class DI {
     func makeTabBarController() -> UITabBarController {
         let tabBar = UITabBarController()
+        NetworkMonitor.shared.start()
         
-        let webSocketClient = WebSocketClient()
-        let homeVM = HomeViewModel(webSocketClient: webSocketClient)
+        let networkService = NetworkService()
+        let homeVM = HomeViewModel(networkService: networkService)
         let homeVC = HomeView(viewModel: homeVM)
         let navForHome = UINavigationController(rootViewController: homeVC)
         navForHome.tabBarItem = UITabBarItem(
@@ -37,8 +38,16 @@ class DI {
             image: UIImage(systemName: "list.bullet"),
             tag: 2
         )
+        
+        let webVC = WebViewController(url: "https://ya.ru/")
+        let navForWeb = UINavigationController(rootViewController: webVC)
+        navForWeb.tabBarItem = UITabBarItem(
+            title: "Страница",
+            image: UIImage(systemName: "graduationcap.fill"),
+            tag: 2
+        )
 
-        tabBar.viewControllers = [navForHome, navForReminder, navForNotes]
+        tabBar.viewControllers = [navForHome, navForReminder, navForNotes, navForWeb]
 
         return tabBar
     }
