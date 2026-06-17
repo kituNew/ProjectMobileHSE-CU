@@ -9,16 +9,14 @@ import UIKit
 
 
 final class HomeView: UIViewController {
-    let viewModel: HomeViewModel
+    private let presenter: HomePresenting
     var news: [New] = []
-    
-    var source: Sourse = .all
     
     private var needsRetryWhenOnline = false
     private var isLoading = false
     
-    init(viewModel: HomeViewModel) {
-        self.viewModel = viewModel
+    init(presenter: HomePresenting) {
+        self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -46,16 +44,9 @@ final class HomeView: UIViewController {
         return v
     }()
     
-    private let filterControl: UISegmentedControl = {
-        let sc = UISegmentedControl(items: ["ALL", "NYT", "INYT"])
-        sc.selectedSegmentIndex = 0
-        sc.translatesAutoresizingMaskIntoConstraints = false
-        return sc
-    }()
-
     private let searchField: UITextField = {
         let tf = UITextField()
-        tf.text = "business"
+        tf.text = "beer"
         tf.placeholder = "Введите текст…"
         tf.borderStyle = .roundedRect
         tf.clearButtonMode = .whileEditing
@@ -73,7 +64,7 @@ final class HomeView: UIViewController {
     }()
 
     private lazy var topBarStack: UIStackView = {
-        let st = UIStackView(arrangedSubviews: [filterControl, searchField, sendButton])
+        let st = UIStackView(arrangedSubviews: [searchField, sendButton])
         st.axis = .horizontal
         st.spacing = 8
         st.alignment = .center
@@ -88,29 +79,7 @@ final class HomeView: UIViewController {
         
         setup()
         observeNetwork()
-        sendRequest()
-    }
-    
-    private func loadData(source: Sourse, section: String) {
-        spinner.startAnimating()
-        tableView.isHidden = true
-
-        Task {
-            await viewModel.fetchNews(source: source.rawValue, section: section) { [weak self] result in
-                guard let self = self else { return }
-
-                self.spinner.stopAnimating()
-                self.tableView.isHidden = false
-
-                switch result {
-                case .success(let news):
-                    self.news = news ?? []
-                    self.tableView.reloadData()
-                case .failure(let error):
-                    print("Ошибка: \(error)")
-                }
-            }
-        }
+        presenter.viewDidLoad()
     }
     
     func setup() {
@@ -129,13 +98,11 @@ final class HomeView: UIViewController {
         // !!! зарегистрируй свои ячейки тут
         tableView.register(NewCell.self, forCellReuseIdentifier: NewCell.reuseIdentifier)
 
-        // чтобы текстовое поле расширялось, а сегменты/кнопка держали размер
-        filterControl.setContentHuggingPriority(.required, for: .horizontal)
+        // чтобы текстовое поле расширялось, а кнопка держала размер
         sendButton.setContentHuggingPriority(.required, for: .horizontal)
         searchField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
         // Actions
-        filterControl.addTarget(self, action: #selector(filterChanged), for: .valueChanged)
         sendButton.addTarget(self, action: #selector(sendRequest), for: .touchUpInside)
 
         NSLayoutConstraint.activate([
@@ -154,19 +121,11 @@ final class HomeView: UIViewController {
         ])
     }
     
-    @objc private func filterChanged() {
-        switch filterControl.selectedSegmentIndex {
-        case 0: source = .nyt
-        case 1: source = .inyt
-        default: source = .all
-        }
-    }
-
     @objc private func sendRequest() {
         let text = searchField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !text.isEmpty else { return }
 
-        loadData(source: source, section: text)
+        presenter.search(query: text)
 
         searchField.resignFirstResponder()
     }
@@ -190,6 +149,32 @@ final class HomeView: UIViewController {
     }
 }
 
+extension HomeView: HomeViewProtocol {
+    func showLoading() {
+        isLoading = true
+        spinner.startAnimating()
+        tableView.isHidden = true
+    }
+
+    func showNews(_ news: [New]) {
+        isLoading = false
+        spinner.stopAnimating()
+        tableView.isHidden = false
+        self.news = news
+        tableView.reloadData()
+    }
+
+    func showError(_ message: String) {
+        isLoading = false
+        spinner.stopAnimating()
+        tableView.isHidden = false
+
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+}
+
 extension HomeView: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -209,7 +194,9 @@ extension HomeView: UITableViewDataSource, UITableViewDelegate {
         }
 
         let item = news[indexPath.row]
-        cell.configure(with: item, vm: viewModel)
+        cell.configure(with: item) { [presenter] urlString in
+            await presenter.loadImage(urlString: urlString)
+        }
 
         return cell
     }
@@ -218,7 +205,6 @@ extension HomeView: UITableViewDataSource, UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
         
         let item = news[indexPath.row]
-        let detailsVC = NewDetailView(new: item, vm: viewModel)
-        navigationController?.pushViewController(detailsVC, animated: true)
+        presenter.selectNews(item)
     }
 }

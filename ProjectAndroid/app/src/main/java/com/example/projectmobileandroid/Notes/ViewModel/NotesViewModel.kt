@@ -4,45 +4,73 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.projectmobileandroid.Notes.Model.NoteItem
+import com.example.projectmobileandroid.DI.AppContainer
+import com.example.projectmobileandroid.Notes.Domain.DeleteNoteUseCase
+import com.example.projectmobileandroid.Notes.Domain.GetNoteUseCase
+import com.example.projectmobileandroid.Notes.Domain.Note
+import com.example.projectmobileandroid.Notes.Domain.ObserveNotesUseCase
+import com.example.projectmobileandroid.Notes.Domain.SaveNoteUseCase
+import kotlinx.coroutines.flow.StateFlow
 
-class NotesViewModel : ViewModel() {
+class NotesViewModel(
+    observeNotesUseCase: ObserveNotesUseCase = AppContainer.observeNotesUseCase,
+    private val getNoteUseCase: GetNoteUseCase = AppContainer.getNoteUseCase,
+    private val saveNoteUseCase: SaveNoteUseCase = AppContainer.saveNoteUseCase,
+    private val deleteNoteUseCase: DeleteNoteUseCase = AppContainer.deleteNoteUseCase
+) : ViewModel() {
+
+    val notes: StateFlow<List<Note>> = observeNotesUseCase()
 
     var title by mutableStateOf("")
         private set
 
-    var description by mutableStateOf("")
+    var text by mutableStateOf("")
         private set
 
-    var notes by mutableStateOf(listOf<NoteItem>())
-        private set
+    private var editingNoteId: Long? = null
 
     fun onTitleChange(value: String) {
         title = value
     }
 
-    fun onDescriptionChange(value: String) {
-        description = value
+    fun onTextChange(value: String) {
+        text = value
     }
 
-    fun addNote() {
-        val trimmedTitle = title.trim()
-        val trimmedDescription = description.trim()
-
-        if (trimmedTitle.isEmpty() && trimmedDescription.isEmpty()) return
-
-        val newNote = NoteItem(
-            id = System.currentTimeMillis(),
-            title = trimmedTitle.ifEmpty { "Без названия" },
-            description = trimmedDescription
-        )
-
-        notes = listOf(newNote) + notes
+    fun startCreate() {
+        editingNoteId = null
         title = ""
-        description = ""
+        text = ""
+    }
+
+    fun startEdit(id: Long) {
+        val note = getNoteUseCase(id)
+        editingNoteId = note?.id
+        title = note?.title.orEmpty()
+        text = note?.text.orEmpty()
+    }
+
+    fun saveCurrentNote(): Boolean {
+        val savedNote = saveNoteUseCase(
+            id = editingNoteId,
+            title = title,
+            text = text
+        ) ?: return false
+
+        editingNoteId = savedNote.id
+        title = savedNote.title
+        text = savedNote.text
+        return true
     }
 
     fun deleteNote(id: Long) {
-        notes = notes.filterNot { it.id == id }
+        deleteNoteUseCase(id)
+        if (editingNoteId == id) {
+            startCreate()
+        }
+    }
+
+    fun clearEditor() {
+        startCreate()
     }
 }

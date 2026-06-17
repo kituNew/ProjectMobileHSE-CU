@@ -6,15 +6,20 @@
 //
 
 import UIKit
-import SafariServices
 
 final class NewDetailView: UIViewController {
     private let new: New
-    private let vm: HomeViewModel
+    private let imageLoader: LoadNewsImageUseCaseProtocol
+    private let router: NewsDetailRouting
 
-    init(new: New, vm: HomeViewModel) {
+    init(
+        new: New,
+        imageLoader: LoadNewsImageUseCaseProtocol,
+        router: NewsDetailRouting
+    ) {
         self.new = new
-        self.vm = vm
+        self.imageLoader = imageLoader
+        self.router = router
         super.init(nibName: nil, bundle: nil)
         title = new.section
     }
@@ -130,27 +135,19 @@ final class NewDetailView: UIViewController {
         Published: \(df.string(from: new.publishedDate))
         """
 
-//        let imgUrl = new.multimedia?.last?.url ?? new.multimedia?.first?.url
-//        imageView.setImage(from: imgUrl, placeholder: UIImage(systemName: "photo"))
-        
         Task { [weak self] in
             guard let self else { return }
-            let img = await vm.loadImage(urlString: new.multimedia?.first?.url)
+            let img = await imageLoader.execute(urlString: new.multimedia?.first?.url)
             await MainActor.run {
                 self.imageView.image = img ?? UIImage(systemName: "photo")
             }
         }
 
-        // Если у тебя нет url статьи в модели — кнопку можно скрыть
-        // openButton.isHidden = (news.url == nil)
+        openButton.isHidden = (new.url == nil && new.relatedUrls?.first?.url == nil)
     }
 
     @objc private func openTapped() {
-        // Если добавишь `news.url`, открывай её:
-        // guard let s = news.url, let url = URL(string: s) else { return }
-
-        // Пока откроем первую relatedUrl, если есть:
-        guard let s = new.relatedUrls?.first?.url, let url = URL(string: s) else { return }
-        present(SFSafariViewController(url: url), animated: true)
+        guard let urlString = new.url ?? new.relatedUrls?.first?.url else { return }
+        router.openWeb(urlString: urlString, title: new.title)
     }
 }

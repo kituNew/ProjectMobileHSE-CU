@@ -10,105 +10,82 @@ import Foundation
 struct NewsResponseDTO: Codable {
     let status: String
     let copyright: String
-    let numResults: Int
-    let results: [NewsItemDTO]
+    let response: NewsSearchResponseDTO
+}
 
-    enum CodingKeys: String, CodingKey {
-        case status
-        case copyright
-        case numResults = "num_results"
-        case results
-    }
+struct NewsSearchResponseDTO: Codable {
+    let docs: [NewsItemDTO]
+    let metadata: NewsMetadataDTO?
+}
+
+struct NewsMetadataDTO: Codable {
+    let hits: Int?
+    let offset: Int?
+    let time: Int?
 }
 
 struct NewsItemDTO: Codable {
-    let slugName: String?
-    let section: String?
-    let subsection: String?
-    let title: String?
+    let id: String?
     let abstract: String?
-    let uri: String?
-    let url: String?
-    let byline: String?
-    let itemType: String?
+    let snippet: String?
+    let webUrl: String?
     let source: String?
-
-    let updatedDate: String?
-    let createdDate: String?
-    let publishedDate: String?
-    let firstPublishedDate: String?
-
-    let materialTypeFacet: String?
-    let kicker: String?
-    let subheadline: String?
-
-    let desFacet: [String]?
-    let orgFacet: [String]?
-    let perFacet: [String]?
-    let geoFacet: [String]?
-
-    let relatedUrls: [RelatedUrlDTO]?
-    let multimedia: [MultimediaDTO]?
+    let pubDate: String?
+    let sectionName: String?
+    let subsectionName: String?
+    let headline: HeadlineDTO?
+    let byline: BylineDTO?
+    let multimedia: MultimediaDTO?
+    let uri: String?
 
     enum CodingKeys: String, CodingKey {
-        case slugName = "slug_name"
-        case section
-        case subsection
-        case title
+        case id = "_id"
         case abstract
-        case uri
-        case url
-        case byline
-        case itemType = "item_type"
+        case snippet
+        case webUrl = "web_url"
         case source
-
-        case updatedDate = "updated_date"
-        case createdDate = "created_date"
-        case publishedDate = "published_date"
-        case firstPublishedDate = "first_published_date"
-
-        case materialTypeFacet = "material_type_facet"
-        case kicker
-        case subheadline
-
-        case desFacet = "des_facet"
-        case orgFacet = "org_facet"
-        case perFacet = "per_facet"
-        case geoFacet = "geo_facet"
-
-        case relatedUrls = "related_urls"
+        case pubDate = "pub_date"
+        case sectionName = "section_name"
+        case subsectionName = "subsection_name"
+        case headline
+        case byline
         case multimedia
+        case uri
     }
 }
 
-struct RelatedUrlDTO: Codable {
-    let suggestedLinkText: String?
-    let url: String?
+struct HeadlineDTO: Codable {
+    let main: String?
+    let kicker: String?
+    let printHeadline: String?
 
     enum CodingKeys: String, CodingKey {
-        case suggestedLinkText = "suggested_link_text"
-        case url
+        case main
+        case kicker
+        case printHeadline = "print_headline"
     }
+}
+
+struct BylineDTO: Codable {
+    let original: String?
 }
 
 struct MultimediaDTO: Codable {
-    let url: String?
-    let format: String?
-    let height: Int?
-    let width: Int?
-    let type: String?
-    let subtype: String?
     let caption: String?
-    let copyright: String?
+    let credit: String?
+    let defaultImage: MultimediaImageDTO?
+    let thumbnail: MultimediaImageDTO?
 
     enum CodingKeys: String, CodingKey {
-        case url
-        case format
-        case height
-        case width
-        case type
-        case subtype
         case caption
-        case copyright
+        case credit
+        case defaultImage = "default"
+        case thumbnail
     }
+}
+
+struct MultimediaImageDTO: Codable {
+    let url: String?
+    let height: Int?
+    let width: Int?
 }

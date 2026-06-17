@@ -15,7 +15,7 @@ object NetworkModule {
 
     private lateinit var appContext: Context
 
-    public var apiKey = "N2vILD3AQxJiSjDq22q3rw0AWbNO3ixUtONDlyGd2JbQjRXe"
+    public var apiKey = "gAyEnGAME1VzDKDEVj4HHrm8W51m0QmXIaJDIn9JCLXzcm4u"
 
     fun init(context: Context) {
         appContext = context.applicationContext

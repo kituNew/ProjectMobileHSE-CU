@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 
 struct Reminder {
+    var id: String = UUID().uuidString
     var text: String
     var description: String
     var priority: Priority

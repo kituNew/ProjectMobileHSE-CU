@@ -1,10 +1,11 @@
 package com.example.projectmobileandroid.Home.ViewModel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.projectmobileandroid.DI.AppContainer
+import com.example.projectmobileandroid.Home.Domain.GetNewsUseCase
 import com.example.projectmobileandroid.Home.Model.HomeUiState
-import com.example.projectmobileandroid.Home.Model.News
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,33 +14,32 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.util.Locale
 
-class HomeViewModel(application: Application) : AndroidViewModel(application) {
+class HomeViewModel(
+    private val getNewsUseCase: GetNewsUseCase = AppContainer.getNewsUseCase
+) : ViewModel() {
 
-    private val repository = NewsRepository(application.applicationContext)
+    private var currentQuery = "beer"
 
-    private val _uiState = MutableStateFlow(HomeUiState())
+    private val _uiState = MutableStateFlow(HomeUiState(query = currentQuery))
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
-
-    private var currentSource = "nyt"
-    private var currentSection = "business"
 
     private var autoRefreshJob: Job? = null
     private var loadJob: Job? = null
+    private var searchJob: Job? = null
 
     init {
         loadNews()
     }
 
     fun loadNews(
-        source: String = currentSource,
-        section: String = currentSection
+        query: String = currentQuery
     ) {
-        if (loadJob?.isActive == true) return
+        val normalizedQuery = query.trim()
+        if (normalizedQuery.isEmpty()) return
 
-        currentSource = source
-        currentSection = section
+        loadJob?.cancel()
+        currentQuery = normalizedQuery
 
         loadJob = viewModelScope.launch {
             _uiState.update {
@@ -50,19 +50,19 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             runCatching {
-                repository.getNews(source, section)
+                getNewsUseCase(normalizedQuery)
             }.onSuccess { news ->
-                val filtered = filterNews(_uiState.value.query, news)
-
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         allNews = news,
-                        visibleNews = filtered,
+                        visibleNews = news,
                         errorMessage = null
                     )
                 }
             }.onFailure { throwable ->
+                if (throwable is CancellationException) return@launch
+
                 _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -79,7 +79,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         autoRefreshJob = viewModelScope.launch {
             while (isActive) {
                 delay(2 * 60 * 1000L)
-                loadNews(currentSource, currentSection)
+                loadNews(currentQuery)
             }
         }
     }
@@ -90,32 +90,20 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun onQueryChange(query: String) {
-        _uiState.update { current ->
-            current.copy(
-                query = query,
-                visibleNews = filterNews(query, current.allNews)
-            )
+        _uiState.update { it.copy(query = query) }
+
+        searchJob?.cancel()
+        if (query.isBlank()) {
+            return
+        }
+
+        searchJob = viewModelScope.launch {
+            delay(500)
+            loadNews(query)
         }
     }
 
     fun retry() {
-        loadNews(currentSource, currentSection)
-    }
-
-    private fun filterNews(
-        query: String,
-        items: List<News>
-    ): List<News> {
-        if (query.isBlank()) return items
-
-        val normalizedQuery = query.trim().lowercase(Locale.getDefault())
-
-        return items.filter { article ->
-            article.title.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
-                    article.abstractText.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
-                    article.byline.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
-                    article.section.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
-                    article.subsection.lowercase(Locale.getDefault()).contains(normalizedQuery)
-        }
+        loadNews(currentQuery)
     }
 }

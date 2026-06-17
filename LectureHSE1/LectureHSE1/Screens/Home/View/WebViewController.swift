@@ -29,6 +29,12 @@ final class WebViewController: UIViewController {
         return pv
     }()
 
+    private let toolbar: UIToolbar = {
+        let toolbar = UIToolbar()
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
+        return toolbar
+    }()
+
     private lazy var refreshControl: UIRefreshControl = {
         let rc = UIRefreshControl()
         rc.addTarget(self, action: #selector(onPullToRefresh), for: .valueChanged)
@@ -84,6 +90,7 @@ final class WebViewController: UIViewController {
     private func setupLayout() {
         view.addSubview(progressView)
         view.addSubview(webView)
+        view.addSubview(toolbar)
 
         NSLayoutConstraint.activate([
             progressView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -93,7 +100,12 @@ final class WebViewController: UIViewController {
             webView.topAnchor.constraint(equalTo: progressView.bottomAnchor),
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            webView.bottomAnchor.constraint(equalTo: toolbar.topAnchor),
+
+            toolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            toolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            toolbar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            toolbar.heightAnchor.constraint(equalToConstant: 44)
         ])
 
         webView.scrollView.refreshControl = refreshControl
@@ -101,14 +113,14 @@ final class WebViewController: UIViewController {
 
     private func setupToolbar() {
         navigationItem.largeTitleDisplayMode = .never
-        toolbarItems = [
+        navigationController?.setToolbarHidden(true, animated: false)
+        toolbar.setItems([
             backButton,
             UIBarButtonItem.flexibleSpace(),
             forwardButton,
             UIBarButtonItem.flexibleSpace(),
             reloadButton
-        ]
-        navigationController?.isToolbarHidden = false
+        ], animated: false)
         updateNavButtons()
     }
 

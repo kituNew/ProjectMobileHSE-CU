@@ -103,21 +103,20 @@ final class NewCell: UITableViewCell {
         bylineLabel.text = nil
     }
 
-    func configure(with news: New, vm: HomeViewModel) {
+    func configure(
+        with news: New,
+        loadImage: @escaping (String?) async -> UIImage?
+    ) {
         titleLabel.text = news.title
         subtitleLabel.text = news.abstract
         bylineLabel.text = news.byline
 
-//        let imgUrl = news.multimedia?.first?.url
-//        thumbImageView.setImage(from: imgUrl, placeholder: UIImage(systemName: "photo"))
-        
         Task { [weak self] in
             guard let self else { return }
-            let img = await vm.loadImage(urlString: news.multimedia?.first?.url)
+            let img = await loadImage(news.multimedia?.first?.url)
             await MainActor.run {
                 self.thumbImageView.image = img ?? UIImage(systemName: "photo")
             }
         }
     }
 }
-

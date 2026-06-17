@@ -13,23 +13,26 @@ data class News(
 )
 
 fun NewsItemDTO.toDomain(): News {
-    val preferredImageUrl =
-        multimedia.firstOrNull {
-            !it.url.isNullOrBlank() &&
-                    (it.format?.contains("threeByTwo", ignoreCase = true) == true ||
-                            it.format?.contains("Large", ignoreCase = true) == true)
-        }?.url
-            ?: multimedia.firstOrNull { !it.url.isNullOrBlank() }?.url
+    val preferredImageUrl = multimedia?.defaultImage?.url
+        ?: multimedia?.thumbnail?.url
 
     return News(
-        id = uri ?: url ?: slugName ?: title ?: "${publishedDate}_${hashCode()}",
-        title = title.orEmpty(),
-        abstractText = abstract.orEmpty(),
-        byline = byline.orEmpty(),
-        section = section.orEmpty(),
-        subsection = subsection.orEmpty(),
-        url = url,
-        publishedDate = publishedDate.orEmpty(),
-        imageUrl = preferredImageUrl
+        id = id ?: uri ?: webUrl ?: headline?.main ?: "${pubDate}_${hashCode()}",
+        title = headline?.main.orEmpty(),
+        abstractText = abstract ?: snippet.orEmpty(),
+        byline = byline?.original.orEmpty(),
+        section = sectionName.orEmpty(),
+        subsection = subsectionName.orEmpty(),
+        url = webUrl,
+        publishedDate = pubDate.orEmpty(),
+        imageUrl = preferredImageUrl?.toNytImageUrl()
     )
+}
+
+private fun String.toNytImageUrl(): String {
+    return if (startsWith("http://") || startsWith("https://")) {
+        this
+    } else {
+        "https://www.nytimes.com/$this"
+    }
 }

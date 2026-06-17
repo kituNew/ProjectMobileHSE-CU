@@ -10,7 +10,7 @@ import Foundation
 struct NewsEndpoint: Endpoint {
     var baseURL = APIRoutes().baseURL
 
-    var path = APIRoutes().getNews // /content/{source}/{section}.json
+    var path = APIRoutes().getNews
 
     var method = HTTPMethod.get
 
@@ -18,11 +18,11 @@ struct NewsEndpoint: Endpoint {
     
     var queryParameters: [String: String]?
     
-    init (source: String, section: String) {
-        path = path
-            .replacingOccurrences(of: "{source}", with: source)
-            .replacingOccurrences(of: "{section}", with: section)
-        queryParameters = ["api-key": "N2vILD3AQxJiSjDq22q3rw0AWbNO3ixUtONDlyGd2JbQjRXe"]
+    init(query: String) {
+        queryParameters = [
+            "q": query,
+            "api-key": "gAyEnGAME1VzDKDEVj4HHrm8W51m0QmXIaJDIn9JCLXzcm4u"
+        ]
     }
 
 }

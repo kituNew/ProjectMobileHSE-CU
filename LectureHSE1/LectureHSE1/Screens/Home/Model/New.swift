@@ -16,6 +16,7 @@ struct New: Identifiable, Hashable, Codable {
     let abstract: String
     let byline: String
     let source: String
+    let url: String?
     let updatedDate: Date
     let createdDate: Date
     let publishedDate: Date
@@ -23,13 +24,14 @@ struct New: Identifiable, Hashable, Codable {
     let relatedUrls: [RelatedUrl]?
     let multimedia: [Multimedia]?
     
-    init(section: String, subsection: String, title: String, abstract: String, byline: String, source: String, updatedDate: Date, createdDate: Date, publishedDate: Date, relatedUrls: [RelatedUrl]?, multimedia: [Multimedia]?) {
+    init(section: String, subsection: String, title: String, abstract: String, byline: String, source: String, url: String?, updatedDate: Date, createdDate: Date, publishedDate: Date, relatedUrls: [RelatedUrl]?, multimedia: [Multimedia]?) {
         self.section = section
         self.subsection = subsection
         self.title = title
         self.abstract = abstract
         self.byline = byline
         self.source = source
+        self.url = url
         self.updatedDate = updatedDate
         self.createdDate = createdDate
         self.publishedDate = publishedDate
@@ -38,23 +40,33 @@ struct New: Identifiable, Hashable, Codable {
     }
     
     init(news: NewsItemDTO) {
-        self.section = news.section ?? ""
-        self.subsection = news.subsection ?? ""
-        self.title = news.title ?? ""
-        self.abstract = news.abstract ?? ""
-        self.byline = news.byline ?? ""
+        self.section = news.sectionName ?? ""
+        self.subsection = news.subsectionName ?? ""
+        self.title = news.headline?.main ?? ""
+        self.abstract = news.abstract ?? news.snippet ?? ""
+        self.byline = news.byline?.original ?? ""
         self.source = news.source ?? ""
+        self.url = news.webUrl
 
-        self.updatedDate = Self.parseISODate(news.updatedDate)
-        self.createdDate = Self.parseISODate(news.createdDate)
-        self.publishedDate = Self.parseISODate(news.publishedDate)
+        self.updatedDate = Self.parseISODate(news.pubDate)
+        self.createdDate = Self.parseISODate(news.pubDate)
+        self.publishedDate = Self.parseISODate(news.pubDate)
 
-        self.relatedUrls = news.relatedUrls?.map {
-            RelatedUrl(suggestedLinkText: $0.suggestedLinkText, url: $0.url)
+        self.relatedUrls = news.webUrl.map {
+            [RelatedUrl(suggestedLinkText: news.headline?.main, url: $0)]
         }
 
-        self.multimedia = news.multimedia?.map {
-            Multimedia(url: $0.url, height: $0.height, width: $0.width, caption: $0.caption)
+        if let image = news.multimedia?.defaultImage ?? news.multimedia?.thumbnail {
+            self.multimedia = [
+                Multimedia(
+                    url: Self.normalizedImageURL(image.url),
+                    height: image.height,
+                    width: image.width,
+                    caption: news.multimedia?.caption
+                )
+            ]
+        } else {
+            self.multimedia = nil
         }
     }
 
@@ -65,6 +77,14 @@ struct New: Identifiable, Hashable, Codable {
         if let d = f2.date(from: value) { return d }
 
         return .distantPast
+    }
+
+    private static func normalizedImageURL(_ value: String?) -> String? {
+        guard let value, !value.isEmpty else { return nil }
+        if value.hasPrefix("http://") || value.hasPrefix("https://") {
+            return value
+        }
+        return "https://www.nytimes.com/" + value
     }
 }
 

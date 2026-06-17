@@ -7,9 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -22,9 +22,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import com.example.projectmobileandroid.DI.AppContainer
+import com.example.projectmobileandroid.Home.View.ArticleWebView
 import com.example.projectmobileandroid.Home.View.HomeView
-import com.example.projectmobileandroid.Home.View.ThreadToCoroutineScreen
-import com.example.projectmobileandroid.Network.NetworkModule
 import com.example.projectmobileandroid.Notes.View.NotesView
 import com.example.projectmobileandroid.Reminder.View.ReminderView
 import com.example.projectmobileandroid.ui.theme.ProjectMobileAndroidTheme
@@ -32,14 +32,13 @@ import com.example.projectmobileandroid.ui.theme.ProjectMobileAndroidTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AppContainer.init(this)
         enableEdgeToEdge()
         setContent {
             ProjectMobileAndroidTheme {
                 ProjectMobileAndroidApp()
             }
         }
-
-        NetworkModule.init(this)
     }
 }
 
@@ -47,6 +46,21 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ProjectMobileAndroidApp() {
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
+    var articleUrl by rememberSaveable { mutableStateOf<String?>(null) }
+    var articleTitle by rememberSaveable { mutableStateOf("") }
+
+    articleUrl?.takeIf { currentDestination == AppDestinations.HOME }?.let { url ->
+        ArticleWebView(
+            url = url,
+            title = articleTitle,
+            modifier = Modifier.fillMaxSize(),
+            onClose = {
+                articleUrl = null
+                articleTitle = ""
+            }
+        )
+        return
+    }
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -68,7 +82,13 @@ fun ProjectMobileAndroidApp() {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             when (currentDestination) {
                 AppDestinations.HOME ->
-                    HomeView(modifier = Modifier.padding(innerPadding))
+                    HomeView(
+                        modifier = Modifier.padding(innerPadding),
+                        onOpenArticle = { url, title ->
+                            articleUrl = url
+                            articleTitle = title
+                        }
+                    )
                 AppDestinations.Reminder ->
                     ReminderView(modifier = Modifier.padding(innerPadding))
                 AppDestinations.Notes ->
@@ -84,5 +104,5 @@ enum class AppDestinations(
 ) {
     HOME("Главная", Icons.Default.Home),
     Reminder("Задачи", Icons.Default.CheckCircle),
-    Notes("Записи", Icons.Default.List),
+    Notes("Записи", Icons.AutoMirrored.Filled.List),
 }

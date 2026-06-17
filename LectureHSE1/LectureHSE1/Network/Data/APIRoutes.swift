@@ -9,5 +9,5 @@ import Foundation
 
 struct APIRoutes {
     let baseURL = URL(string: "https://api.nytimes.com")
-    let getNews: String = "/svc/news/v3/content/{source}/{section}.json"
+    let getNews: String = "/svc/search/v2/articlesearch.json"
 }

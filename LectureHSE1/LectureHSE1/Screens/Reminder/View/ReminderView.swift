@@ -18,7 +18,9 @@ final class ReminderView: UIViewController {
     }
     
     required init?(coder: NSCoder) {
-        self.viewModel = ReminderViewModel()
+        self.viewModel = ReminderViewModel(
+            repository: CoreDataReminderRepository(coreDataStack: CoreDataStack())
+        )
         super.init(coder: coder)
     }
     
@@ -48,8 +50,7 @@ final class ReminderView: UIViewController {
     @objc private func didTapButton() {
         self.present(ReminderDetails(addNewReminder: { [weak self] reminder in
             guard let self = self else { return }
-            self.viewModel.reminders.append(reminder)
-            self.items.append(reminder)
+            self.items = self.viewModel.addReminder(reminder)
             self.tableView.reloadData()
         } ), animated: true)
     }
@@ -127,11 +128,14 @@ extension ReminderView: ReminderViewCellDelegate {
     func reminderCell(_ cell: ReminderViewCell, didChangeDone isDone: Bool) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         items[indexPath.row].isDone = isDone
+        items = viewModel.updateReminder(items[indexPath.row])
+        tableView.reloadData()
     }
 
     func reminderCellDidRequestRemoval(_ cell: ReminderViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
-        items.remove(at: indexPath.row)
-        tableView.deleteRows(at: [indexPath], with: .fade)
+        let reminder = items[indexPath.row]
+        items = viewModel.deleteReminder(id: reminder.id)
+        tableView.reloadData()
     }
 }
