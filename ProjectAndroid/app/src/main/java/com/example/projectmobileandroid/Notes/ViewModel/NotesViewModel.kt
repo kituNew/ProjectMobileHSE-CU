@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.projectmobileandroid.DI.AppContainer
+import androidx.lifecycle.ViewModelProvider
 import com.example.projectmobileandroid.Notes.Domain.DeleteNoteUseCase
 import com.example.projectmobileandroid.Notes.Domain.GetNoteUseCase
 import com.example.projectmobileandroid.Notes.Domain.Note
@@ -13,10 +13,10 @@ import com.example.projectmobileandroid.Notes.Domain.SaveNoteUseCase
 import kotlinx.coroutines.flow.StateFlow
 
 class NotesViewModel(
-    observeNotesUseCase: ObserveNotesUseCase = AppContainer.observeNotesUseCase,
-    private val getNoteUseCase: GetNoteUseCase = AppContainer.getNoteUseCase,
-    private val saveNoteUseCase: SaveNoteUseCase = AppContainer.saveNoteUseCase,
-    private val deleteNoteUseCase: DeleteNoteUseCase = AppContainer.deleteNoteUseCase
+    observeNotesUseCase: ObserveNotesUseCase,
+    private val getNoteUseCase: GetNoteUseCase,
+    private val saveNoteUseCase: SaveNoteUseCase,
+    private val deleteNoteUseCase: DeleteNoteUseCase
 ) : ViewModel() {
 
     val notes: StateFlow<List<Note>> = observeNotesUseCase()
@@ -72,5 +72,25 @@ class NotesViewModel(
 
     fun clearEditor() {
         startCreate()
+    }
+
+    class Factory(
+        private val observeNotesUseCase: ObserveNotesUseCase,
+        private val getNoteUseCase: GetNoteUseCase,
+        private val saveNoteUseCase: SaveNoteUseCase,
+        private val deleteNoteUseCase: DeleteNoteUseCase
+    ) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(NotesViewModel::class.java)) {
+                return NotesViewModel(
+                    observeNotesUseCase = observeNotesUseCase,
+                    getNoteUseCase = getNoteUseCase,
+                    saveNoteUseCase = saveNoteUseCase,
+                    deleteNoteUseCase = deleteNoteUseCase
+                ) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
+        }
     }
 }

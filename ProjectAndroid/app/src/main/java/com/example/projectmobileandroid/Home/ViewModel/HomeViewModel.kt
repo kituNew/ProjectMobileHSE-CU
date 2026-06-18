@@ -1,12 +1,14 @@
 package com.example.projectmobileandroid.Home.ViewModel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.projectmobileandroid.DI.AppContainer
 import com.example.projectmobileandroid.Home.Domain.GetNewsUseCase
+import com.example.projectmobileandroid.Home.Model.FallbackNews
 import com.example.projectmobileandroid.Home.Model.HomeUiState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,9 +16,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 
 class HomeViewModel(
-    private val getNewsUseCase: GetNewsUseCase = AppContainer.getNewsUseCase
+    private val getNewsUseCase: GetNewsUseCase
 ) : ViewModel() {
 
     private var currentQuery = "beer"
@@ -50,23 +53,35 @@ class HomeViewModel(
             }
 
             runCatching {
-                getNewsUseCase(normalizedQuery)
+                withTimeout(20_000L) {
+                    getNewsUseCase(normalizedQuery)
+                }
             }.onSuccess { news ->
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         allNews = news,
                         visibleNews = news,
+                        isFromCache = false,
                         errorMessage = null
                     )
                 }
             }.onFailure { throwable ->
-                if (throwable is CancellationException) return@launch
+                if (throwable is CancellationException && throwable !is TimeoutCancellationException) {
+                    return@launch
+                }
 
                 _uiState.update {
+                    val fallbackNews = FallbackNews.items
                     it.copy(
                         isLoading = false,
-                        errorMessage = throwable.message ?: "Не удалось загрузить новости"
+                        allNews = fallbackNews,
+                        visibleNews = fallbackNews,
+                        isFromCache = true,
+                        errorMessage = when (throwable) {
+                            is TimeoutCancellationException -> "Запрос занял слишком много времени"
+                            else -> throwable.message ?: "Не удалось загрузить новости"
+                        }
                     )
                 }
             }
@@ -105,5 +120,17 @@ class HomeViewModel(
 
     fun retry() {
         loadNews(currentQuery)
+    }
+
+    class Factory(
+        private val getNewsUseCase: GetNewsUseCase
+    ) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
+                return HomeViewModel(getNewsUseCase) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
+        }
     }
 }

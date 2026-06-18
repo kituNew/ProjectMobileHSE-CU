@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,21 +28,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.projectmobileandroid.DI.AppContainer
 import com.example.projectmobileandroid.Reminder.ViewModel.ReminderViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun ReminderView(
     modifier: Modifier = Modifier,
-    viewModel: ReminderViewModel = viewModel()
+    viewModel: ReminderViewModel? = null
 ) {
+    val reminderViewModel = viewModel ?: viewModel(
+        factory = ReminderViewModel.Factory(AppContainer.reminderRepository)
+    )
+    val reminders by reminderViewModel.reminders.collectAsState()
     var isAdding by remember { mutableStateOf(false) }
     val animDuration = 1000
 
     if (isAdding) {
         AddReminderScreen(
             onSave = { reminder ->
-                viewModel.addReminder(reminder)
+                reminderViewModel.addReminder(reminder)
                 isAdding = false
             },
             onCancel = { isAdding = false }
@@ -71,7 +77,7 @@ fun ReminderView(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(
-                    items = viewModel.reminders,
+                    items = reminders,
                     key = { it.id }
                 ) { reminder ->
                     AnimatedVisibility(
@@ -85,7 +91,7 @@ fun ReminderView(
                     ) {
                         ReminderCard(
                             reminder = reminder,
-                            onClick = { viewModel.onReminderClicked(reminder) }
+                            onClick = { reminderViewModel.onReminderClicked(reminder) }
                         )
                     }
                 }

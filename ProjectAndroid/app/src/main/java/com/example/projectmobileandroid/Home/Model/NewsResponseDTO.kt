@@ -12,7 +12,7 @@ data class NewsResponseDTO(
 
 @Serializable
 data class NewsSearchResponseDTO(
-    val docs: List<NewsItemDTO> = emptyList(),
+    val docs: List<NewsItemDTO>? = null,
     val metadata: NewsMetadataDTO = NewsMetadataDTO()
 )
 
@@ -29,6 +29,8 @@ data class NewsItemDTO(
     val id: String? = null,
     val abstract: String? = null,
     val snippet: String? = null,
+    @SerialName("lead_paragraph")
+    val leadParagraph: String? = null,
     @SerialName("web_url")
     val webUrl: String? = null,
     val source: String? = null,

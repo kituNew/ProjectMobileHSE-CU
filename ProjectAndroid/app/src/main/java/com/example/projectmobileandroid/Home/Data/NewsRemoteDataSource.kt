@@ -1,5 +1,6 @@
 package com.example.projectmobileandroid.Home.Data
 
+import android.util.Log
 import com.example.projectmobileandroid.Home.Model.NewsItemDTO
 import com.example.projectmobileandroid.Network.Servises.NewsApiService
 
@@ -18,9 +19,30 @@ class NewsRemoteDataSource(
         query: String,
         apiKey: String
     ): List<NewsItemDTO> {
-        return apiService.getNews(
-            query = query,
-            apiKey = apiKey
-        ).response.docs
+        Log.d(
+            TAG,
+            "getNews(q=$query, apiKeyLength=${apiKey.length})"
+        )
+
+        return try {
+            val response = apiService.getNews(
+                query = query,
+                apiKey = apiKey
+            )
+            val docs = response.response.docs.orEmpty()
+            Log.d(TAG, "Parsed response: status=${response.status}, docs=${docs.size}")
+            docs
+        } catch (throwable: Throwable) {
+            Log.e(
+                TAG,
+                "Retrofit request/parsing failed: ${throwable.javaClass.simpleName}: ${throwable.message}",
+                throwable
+            )
+            throw throwable
+        }
+    }
+
+    private companion object {
+        const val TAG = "NYT_NETWORK"
     }
 }

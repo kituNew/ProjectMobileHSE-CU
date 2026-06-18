@@ -17,7 +17,7 @@ final class NewsRemoteDataSource: NewsRemoteDataSourceProtocol {
             endpoint: NewsEndpoint(query: query),
             requestDTO: NewsRequest()
         )
-        return response.response.docs.map { New(news: $0) }
+        return (response.response.docs ?? []).map { New(news: $0) }
     }
 
     func loadImage(urlString: String?) async -> UIImage? {

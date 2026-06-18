@@ -23,6 +23,14 @@ struct New: Identifiable, Hashable, Codable {
 
     let relatedUrls: [RelatedUrl]?
     let multimedia: [Multimedia]?
+
+    var cacheIdentifier: String {
+        if let url, !url.isEmpty {
+            return url
+        }
+
+        return "\(title)|\(publishedDate.timeIntervalSince1970)"
+    }
     
     init(section: String, subsection: String, title: String, abstract: String, byline: String, source: String, url: String?, updatedDate: Date, createdDate: Date, publishedDate: Date, relatedUrls: [RelatedUrl]?, multimedia: [Multimedia]?) {
         self.section = section

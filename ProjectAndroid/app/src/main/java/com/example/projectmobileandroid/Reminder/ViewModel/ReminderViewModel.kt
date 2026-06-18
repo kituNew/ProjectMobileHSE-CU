@@ -1,58 +1,47 @@
 package com.example.projectmobileandroid.Reminder.ViewModel
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.projectmobileandroid.Reminder.Domain.ReminderRepository
 import com.example.projectmobileandroid.Reminder.Model.Reminder
-import com.example.projectmobileandroid.Reminder.Model.Priority
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ReminderViewModel : ViewModel() {
+class ReminderViewModel(
+    private val repository: ReminderRepository
+) : ViewModel() {
 
-    private val _reminders = mutableStateListOf(
-        Reminder(
-            text = "Сходить в магазин",
-            description = "зайти в Пятерочку по адресу: Новомосковская",
-            priority = Priority.MEDIUM,
-            flag = true,
-            toDate = "12.06 12:00"
-        ),
-        Reminder(
-            text = "Сходить в магазин",
-            description = "зайти в Пятерочку по адресу: Новомосковская",
-            priority = Priority.HIGH,
-            flag = true,
-            toDate = "12.06 12:00"
-        ),
-        Reminder(
-            text = "Сходить в магазин",
-            description = "зайти в Пятерочку по адресу: Новомосковская",
-            priority = Priority.LOW,
-            flag = false,
-            toDate = "12.06 12:00"
-        )
-    )
-    val reminders: List<Reminder> get() = _reminders
+    val reminders: StateFlow<List<Reminder>> = repository.reminders
 
     private val removeDelayMs = 1000L   // 1 сек
 
     fun onReminderClicked(reminder: Reminder) {
-        val index = _reminders.indexOfFirst { it.id == reminder.id }
-        if (index == -1) return
-
-        _reminders[index] = _reminders[index].copy(isDone = true)
+        repository.save(reminder.copy(isDone = true))
 
         viewModelScope.launch {
             delay(removeDelayMs)
-            val currentIndex = _reminders.indexOfFirst { it.id == reminder.id }
-            if (currentIndex != -1 && _reminders[currentIndex].isDone) {
-                _reminders.removeAt(currentIndex)
+            val currentReminder = repository.getReminder(reminder.id)
+            if (currentReminder?.isDone == true) {
+                repository.delete(reminder.id)
             }
         }
     }
 
     fun addReminder(reminder: Reminder) {
-        _reminders.add(reminder)
+        repository.save(reminder)
+    }
+
+    class Factory(
+        private val repository: ReminderRepository
+    ) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(ReminderViewModel::class.java)) {
+                return ReminderViewModel(repository) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
+        }
     }
 }

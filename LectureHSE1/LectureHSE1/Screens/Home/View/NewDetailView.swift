@@ -10,15 +10,21 @@ import UIKit
 final class NewDetailView: UIViewController {
     private let new: New
     private let imageLoader: LoadNewsImageUseCaseProtocol
+    private let isFavoriteUseCase: IsFavoriteNewsUseCaseProtocol
+    private let toggleFavoriteUseCase: ToggleFavoriteNewsUseCaseProtocol
     private let router: NewsDetailRouting
 
     init(
         new: New,
         imageLoader: LoadNewsImageUseCaseProtocol,
+        isFavoriteUseCase: IsFavoriteNewsUseCaseProtocol,
+        toggleFavoriteUseCase: ToggleFavoriteNewsUseCaseProtocol,
         router: NewsDetailRouting
     ) {
         self.new = new
         self.imageLoader = imageLoader
+        self.isFavoriteUseCase = isFavoriteUseCase
+        self.toggleFavoriteUseCase = toggleFavoriteUseCase
         self.router = router
         super.init(nibName: nil, bundle: nil)
         title = new.section
@@ -84,6 +90,7 @@ final class NewDetailView: UIViewController {
 
         setupLayout()
         fill()
+        updateFavoriteButton()
     }
 
     private func setupLayout() {
@@ -144,6 +151,21 @@ final class NewDetailView: UIViewController {
         }
 
         openButton.isHidden = (new.url == nil && new.relatedUrls?.first?.url == nil)
+    }
+
+    private func updateFavoriteButton() {
+        let isFavorite = (try? isFavoriteUseCase.execute(news: new)) ?? false
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: isFavorite ? "star.fill" : "star"),
+            style: .plain,
+            target: self,
+            action: #selector(toggleFavoriteTapped)
+        )
+    }
+
+    @objc private func toggleFavoriteTapped() {
+        _ = try? toggleFavoriteUseCase.execute(news: new)
+        updateFavoriteButton()
     }
 
     @objc private func openTapped() {

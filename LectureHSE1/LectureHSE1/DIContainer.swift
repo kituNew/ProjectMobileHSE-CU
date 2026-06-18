@@ -6,10 +6,10 @@ final class DIContainer {
 
     func makeTabBarController() -> UITabBarController {
         let tabBar = UITabBarController()
-        NetworkMonitor.shared.start()
-
+        
         tabBar.viewControllers = [
             makeHomeNavigationController(),
+            makeFavoritesNavigationController(),
             makeReminderNavigationController(),
             makeNotesNavigationController()
         ]
@@ -23,9 +23,13 @@ final class DIContainer {
             remoteDataSource: remoteDataSource,
             coreDataStack: coreDataStack
         )
+        let favoriteRepository = CoreDataFavoriteNewsRepository(coreDataStack: coreDataStack)
         let searchUseCase = SearchNewsUseCase(repository: repository)
         let imageUseCase = LoadNewsImageUseCase(repository: repository)
-        let router = HomeRouter()
+        let router = HomeRouter(
+            isFavoriteUseCase: IsFavoriteNewsUseCase(repository: favoriteRepository),
+            toggleFavoriteUseCase: ToggleFavoriteNewsUseCase(repository: favoriteRepository)
+        )
         let presenter = HomePresenter(
             searchNewsUseCase: searchUseCase,
             loadImageUseCase: imageUseCase,
@@ -75,6 +79,39 @@ final class DIContainer {
             title: "Записи",
             image: UIImage(systemName: "list.bullet"),
             tag: 2
+        )
+        return navigationController
+    }
+
+    private func makeFavoritesNavigationController() -> UINavigationController {
+        let remoteDataSource = NewsRemoteDataSource(networkService: networkService)
+        let newsRepository = NewsRepository(
+            remoteDataSource: remoteDataSource,
+            coreDataStack: coreDataStack
+        )
+        let favoriteRepository = CoreDataFavoriteNewsRepository(coreDataStack: coreDataStack)
+        let imageUseCase = LoadNewsImageUseCase(repository: newsRepository)
+        let isFavoriteUseCase = IsFavoriteNewsUseCase(repository: favoriteRepository)
+        let toggleFavoriteUseCase = ToggleFavoriteNewsUseCase(repository: favoriteRepository)
+        let router = FavoritesRouter(
+            isFavoriteUseCase: isFavoriteUseCase,
+            toggleFavoriteUseCase: toggleFavoriteUseCase
+        )
+        let presenter = FavoritesPresenter(
+            fetchFavoriteNewsUseCase: FetchFavoriteNewsUseCase(repository: favoriteRepository),
+            toggleFavoriteNewsUseCase: toggleFavoriteUseCase,
+            loadImageUseCase: imageUseCase,
+            router: router
+        )
+        let favoritesVC = FavoritesView(presenter: presenter)
+        presenter.view = favoritesVC
+        router.viewController = favoritesVC
+
+        let navigationController = UINavigationController(rootViewController: favoritesVC)
+        navigationController.tabBarItem = UITabBarItem(
+            title: "Избранное",
+            image: UIImage(systemName: "star"),
+            tag: 3
         )
         return navigationController
     }

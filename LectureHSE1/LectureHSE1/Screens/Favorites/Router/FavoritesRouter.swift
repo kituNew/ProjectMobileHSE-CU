@@ -1,10 +1,10 @@
 import UIKit
 
-protocol HomeRouting {
+protocol FavoritesRouting {
     func showNewsDetails(_ news: New, imageLoader: LoadNewsImageUseCaseProtocol)
 }
 
-final class HomeRouter: HomeRouting {
+final class FavoritesRouter: FavoritesRouting {
     weak var viewController: UIViewController?
     private let isFavoriteUseCase: IsFavoriteNewsUseCaseProtocol
     private let toggleFavoriteUseCase: ToggleFavoriteNewsUseCaseProtocol
@@ -18,30 +18,15 @@ final class HomeRouter: HomeRouting {
     }
 
     func showNewsDetails(_ news: New, imageLoader: LoadNewsImageUseCaseProtocol) {
-        let router = NewsDetailRouter()
+        let detailRouter = NewsDetailRouter()
         let detailsVC = NewDetailView(
             new: news,
             imageLoader: imageLoader,
             isFavoriteUseCase: isFavoriteUseCase,
             toggleFavoriteUseCase: toggleFavoriteUseCase,
-            router: router
+            router: detailRouter
         )
-        router.viewController = detailsVC
+        detailRouter.viewController = detailsVC
         viewController?.navigationController?.pushViewController(detailsVC, animated: true)
-    }
-}
-
-protocol NewsDetailRouting {
-    func openWeb(urlString: String, title: String)
-}
-
-final class NewsDetailRouter: NewsDetailRouting {
-    weak var viewController: UIViewController?
-
-    func openWeb(urlString: String, title: String) {
-        let webVC = WebViewController(url: urlString)
-        webVC.title = title
-        webVC.hidesBottomBarWhenPushed = true
-        viewController?.navigationController?.pushViewController(webVC, animated: true)
     }
 }

@@ -17,6 +17,14 @@ final class CoreDataStack {
         if inMemory {
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
         }
+        container.persistentStoreDescriptions.first?.setOption(
+            true as NSNumber,
+            forKey: NSMigratePersistentStoresAutomaticallyOption
+        )
+        container.persistentStoreDescriptions.first?.setOption(
+            true as NSNumber,
+            forKey: NSInferMappingModelAutomaticallyOption
+        )
 
         container.loadPersistentStores { _, error in
             if let error {
@@ -37,6 +45,7 @@ final class CoreDataStack {
         let model = NSManagedObjectModel()
         model.entities = [
             makeCachedNewsEntity(),
+            makeFavoriteNewsEntity(),
             makeNoteEntity(),
             makeReminderEntity()
         ]
@@ -50,6 +59,18 @@ final class CoreDataStack {
         entity.properties = [
             attribute("id", .stringAttributeType, isOptional: false),
             attribute("query", .stringAttributeType, isOptional: false),
+            attribute("payload", .binaryDataAttributeType, isOptional: false),
+            attribute("cachedAt", .dateAttributeType, isOptional: false)
+        ]
+        return entity
+    }
+
+    private static func makeFavoriteNewsEntity() -> NSEntityDescription {
+        let entity = NSEntityDescription()
+        entity.name = CoreDataEntity.favoriteNews
+        entity.managedObjectClassName = NSStringFromClass(NSManagedObject.self)
+        entity.properties = [
+            attribute("id", .stringAttributeType, isOptional: false),
             attribute("payload", .binaryDataAttributeType, isOptional: false),
             attribute("cachedAt", .dateAttributeType, isOptional: false)
         ]
@@ -101,6 +122,7 @@ final class CoreDataStack {
 
 enum CoreDataEntity {
     static let cachedNews = "CachedNewsEntity"
+    static let favoriteNews = "FavoriteNewsEntity"
     static let note = "NoteEntity"
     static let reminder = "ReminderEntity"
 }

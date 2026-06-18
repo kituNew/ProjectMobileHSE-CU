@@ -14,7 +14,7 @@ struct NewsResponseDTO: Codable {
 }
 
 struct NewsSearchResponseDTO: Codable {
-    let docs: [NewsItemDTO]
+    let docs: [NewsItemDTO]?
     let metadata: NewsMetadataDTO?
 }
 

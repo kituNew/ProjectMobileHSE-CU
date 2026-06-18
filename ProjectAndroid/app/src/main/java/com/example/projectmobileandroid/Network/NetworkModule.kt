@@ -1,21 +1,25 @@
 package com.example.projectmobileandroid.Network
 
 import android.content.Context
+import android.util.Log
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
-import okhttp3.CacheControl
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.io.File
 import okhttp3.MediaType.Companion.toMediaType
 import java.util.concurrent.TimeUnit
+import com.example.projectmobileandroid.BuildConfig
 
 object NetworkModule {
 
     private lateinit var appContext: Context
 
-    public var apiKey = "gAyEnGAME1VzDKDEVj4HHrm8W51m0QmXIaJDIn9JCLXzcm4u"
+    val apiKey: String
+        get() = BuildConfig.NYT_API_KEY.ifBlank {
+            "gAyEnGAME1VzDKDEVj4HHrm8W51m0QmXIaJDIn9JCLXzcm4u"
+        }
 
     fun init(context: Context) {
         appContext = context.applicationContext
@@ -30,6 +34,11 @@ object NetworkModule {
 
     private val okHttpClient by lazy {
         OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
+            .callTimeout(20, TimeUnit.SECONDS)
+            .dns(PublicIpv4Dns)
             .cache(
                 Cache(
                     directory = File(appContext.cacheDir, "http_cache"),
@@ -37,20 +46,21 @@ object NetworkModule {
                 )
             )
             .addInterceptor { chain ->
-                var request = chain.request()
+                val request = chain.request()
 
-                if (!appContext.isOnline()) {
-                    request = request.newBuilder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .onlyIfCached()
-                                .maxStale(7, TimeUnit.DAYS)
-                                .build()
-                        )
-                        .build()
+                Log.d(TAG, "Sending request: ${request.method} ${request.url}")
+
+                try {
+                    val response = chain.proceed(request)
+                    Log.d(
+                        TAG,
+                        "Response: code=${response.code}, cache=${response.cacheResponse != null}, network=${response.networkResponse != null}, url=${response.request.url}"
+                    )
+                    response
+                } catch (throwable: Throwable) {
+                    Log.e(TAG, "Request failed: ${request.method} ${request.url}", throwable)
+                    throw throwable
                 }
-
-                chain.proceed(request)
             }
             .addNetworkInterceptor { chain ->
                 val response = chain.proceed(chain.request())
@@ -75,4 +85,6 @@ object NetworkModule {
     fun <T> createService(serviceClass: Class<T>): T {
         return retrofit.create(serviceClass)
     }
+
+    private const val TAG = "NYT_NETWORK"
 }

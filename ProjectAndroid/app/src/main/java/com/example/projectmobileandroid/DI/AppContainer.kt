@@ -1,20 +1,26 @@
 package com.example.projectmobileandroid.DI
 
 import android.content.Context
+import com.example.projectmobileandroid.Favorites.Data.CachedFavoriteNewsRepository
+import com.example.projectmobileandroid.Favorites.Domain.ObserveFavoriteNewsUseCase
+import com.example.projectmobileandroid.Favorites.Domain.RemoveFavoriteNewsUseCase
+import com.example.projectmobileandroid.Favorites.Domain.ToggleFavoriteNewsUseCase
 import com.example.projectmobileandroid.Home.Data.NetworkNewsRepository
 import com.example.projectmobileandroid.Home.Data.NewsRemoteDataSource
 import com.example.projectmobileandroid.Home.Domain.GetNewsUseCase
 import com.example.projectmobileandroid.Network.NetworkModule
 import com.example.projectmobileandroid.Network.Servises.NewsApiService
-import com.example.projectmobileandroid.Notes.Data.InMemoryNotesRepository
+import com.example.projectmobileandroid.Notes.Data.CachedNotesRepository
 import com.example.projectmobileandroid.Notes.Domain.DeleteNoteUseCase
 import com.example.projectmobileandroid.Notes.Domain.GetNoteUseCase
 import com.example.projectmobileandroid.Notes.Domain.ObserveNotesUseCase
 import com.example.projectmobileandroid.Notes.Domain.SaveNoteUseCase
+import com.example.projectmobileandroid.Reminder.Data.CachedReminderRepository
 
 object AppContainer {
 
     private var isInitialized = false
+    private lateinit var appContext: Context
 
     val getNewsUseCase: GetNewsUseCase by lazy {
         val apiService = NetworkModule.createService(NewsApiService::class.java)
@@ -28,7 +34,15 @@ object AppContainer {
     }
 
     private val notesRepository by lazy {
-        InMemoryNotesRepository()
+        CachedNotesRepository(appContext)
+    }
+
+    val reminderRepository by lazy {
+        CachedReminderRepository(appContext)
+    }
+
+    private val favoriteNewsRepository by lazy {
+        CachedFavoriteNewsRepository(appContext)
     }
 
     val observeNotesUseCase: ObserveNotesUseCase by lazy {
@@ -47,10 +61,23 @@ object AppContainer {
         DeleteNoteUseCase(notesRepository)
     }
 
+    val observeFavoriteNewsUseCase: ObserveFavoriteNewsUseCase by lazy {
+        ObserveFavoriteNewsUseCase(favoriteNewsRepository)
+    }
+
+    val toggleFavoriteNewsUseCase: ToggleFavoriteNewsUseCase by lazy {
+        ToggleFavoriteNewsUseCase(favoriteNewsRepository)
+    }
+
+    val removeFavoriteNewsUseCase: RemoveFavoriteNewsUseCase by lazy {
+        RemoveFavoriteNewsUseCase(favoriteNewsRepository)
+    }
+
     fun init(context: Context) {
         if (isInitialized) return
 
-        NetworkModule.init(context)
+        appContext = context.applicationContext
+        NetworkModule.init(appContext)
         isInitialized = true
     }
 }

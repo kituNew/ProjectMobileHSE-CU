@@ -21,7 +21,7 @@ android {
         buildConfigField(
             "String",
             "NYT_API_KEY",
-            "\"${project.findProperty("NYT_API_KEY") ?: ""}\""
+            "\"${project.findProperty("NYT_API_KEY") ?: "gAyEnGAME1VzDKDEVj4HHrm8W51m0QmXIaJDIn9JCLXzcm4u"}\""
         )
     }
 

@@ -1,5 +1,8 @@
 package com.example.projectmobileandroid.Home.Model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class News(
     val id: String,
     val title: String,
@@ -9,7 +12,10 @@ data class News(
     val subsection: String,
     val url: String?,
     val publishedDate: String,
-    val imageUrl: String?
+    val imageUrl: String?,
+    val snippet: String = "",
+    val leadParagraph: String = "",
+    val source: String = ""
 )
 
 fun NewsItemDTO.toDomain(): News {
@@ -25,7 +31,10 @@ fun NewsItemDTO.toDomain(): News {
         subsection = subsectionName.orEmpty(),
         url = webUrl,
         publishedDate = pubDate.orEmpty(),
-        imageUrl = preferredImageUrl?.toNytImageUrl()
+        imageUrl = preferredImageUrl?.toNytImageUrl(),
+        snippet = snippet.orEmpty(),
+        leadParagraph = leadParagraph.orEmpty(),
+        source = source.orEmpty()
     )
 }
 

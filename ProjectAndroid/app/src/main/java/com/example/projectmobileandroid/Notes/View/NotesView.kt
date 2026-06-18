@@ -51,6 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.projectmobileandroid.DI.AppContainer
 import com.example.projectmobileandroid.Notes.Domain.Note
 import com.example.projectmobileandroid.Notes.ViewModel.NotesViewModel
 import java.text.SimpleDateFormat
@@ -66,14 +67,24 @@ private enum class NotesRoute {
 @Composable
 fun NotesView(
     modifier: Modifier = Modifier,
-    vm: NotesViewModel = viewModel()
+    vm: NotesViewModel? = null
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    AppContainer.init(context)
+    val notesViewModel = vm ?: viewModel(
+        factory = NotesViewModel.Factory(
+            observeNotesUseCase = AppContainer.observeNotesUseCase,
+            getNoteUseCase = AppContainer.getNoteUseCase,
+            saveNoteUseCase = AppContainer.saveNoteUseCase,
+            deleteNoteUseCase = AppContainer.deleteNoteUseCase
+        )
+    )
     var routeName by rememberSaveable { mutableStateOf(NotesRoute.List.name) }
     var selectedNoteId by rememberSaveable { mutableStateOf<Long?>(null) }
     val route = NotesRoute.valueOf(routeName)
 
     BackHandler(enabled = route != NotesRoute.List) {
-        vm.clearEditor()
+        notesViewModel.clearEditor()
         selectedNoteId = null
         routeName = NotesRoute.List.name
     }
@@ -81,14 +92,14 @@ fun NotesView(
     when (route) {
         NotesRoute.List -> NotesListScreen(
             modifier = modifier,
-            vm = vm,
+            vm = notesViewModel,
             onCreateClick = {
-                vm.startCreate()
+                notesViewModel.startCreate()
                 selectedNoteId = null
                 routeName = NotesRoute.Create.name
             },
             onOpenNote = { note ->
-                vm.startEdit(note.id)
+                notesViewModel.startEdit(note.id)
                 selectedNoteId = note.id
                 routeName = NotesRoute.Details.name
             }
@@ -96,10 +107,10 @@ fun NotesView(
 
         NotesRoute.Create -> NoteEditorScreen(
             modifier = modifier,
-            vm = vm,
+            vm = notesViewModel,
             title = "Новая заметка",
             onBack = {
-                vm.clearEditor()
+                notesViewModel.clearEditor()
                 routeName = NotesRoute.List.name
             },
             onSaved = {
@@ -111,10 +122,10 @@ fun NotesView(
 
         NotesRoute.Details -> NoteEditorScreen(
             modifier = modifier,
-            vm = vm,
+            vm = notesViewModel,
             title = "Заметка",
             onBack = {
-                vm.clearEditor()
+                notesViewModel.clearEditor()
                 selectedNoteId = null
                 routeName = NotesRoute.List.name
             },
@@ -124,7 +135,7 @@ fun NotesView(
             },
             onDelete = selectedNoteId?.let { id ->
                 {
-                    vm.deleteNote(id)
+                    notesViewModel.deleteNote(id)
                     selectedNoteId = null
                     routeName = NotesRoute.List.name
                 }
