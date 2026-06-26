@@ -1,5 +1,7 @@
 package com.example.projectmobileandroid.Notes.Domain
 
+import com.example.projectmobileandroid.Notes.Data.NotesRepository
+import com.example.projectmobileandroid.Notes.Model.Note
 import kotlinx.coroutines.flow.StateFlow
 
 class ObserveNotesUseCase(

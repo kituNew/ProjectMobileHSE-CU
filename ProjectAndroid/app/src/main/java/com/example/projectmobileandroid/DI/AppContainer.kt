@@ -16,6 +16,11 @@ import com.example.projectmobileandroid.Notes.Domain.GetNoteUseCase
 import com.example.projectmobileandroid.Notes.Domain.ObserveNotesUseCase
 import com.example.projectmobileandroid.Notes.Domain.SaveNoteUseCase
 import com.example.projectmobileandroid.Reminder.Data.CachedReminderRepository
+import com.example.projectmobileandroid.Reminder.Domain.CompleteReminderUseCase
+import com.example.projectmobileandroid.Reminder.Domain.DeleteCompletedReminderUseCase
+import com.example.projectmobileandroid.Reminder.Domain.DeleteReminderUseCase
+import com.example.projectmobileandroid.Reminder.Domain.ObserveRemindersUseCase
+import com.example.projectmobileandroid.Reminder.Domain.SaveReminderUseCase
 
 object AppContainer {
 
@@ -59,6 +64,26 @@ object AppContainer {
 
     val deleteNoteUseCase: DeleteNoteUseCase by lazy {
         DeleteNoteUseCase(notesRepository)
+    }
+
+    val observeRemindersUseCase: ObserveRemindersUseCase by lazy {
+        ObserveRemindersUseCase(reminderRepository)
+    }
+
+    val saveReminderUseCase: SaveReminderUseCase by lazy {
+        SaveReminderUseCase(reminderRepository)
+    }
+
+    val completeReminderUseCase: CompleteReminderUseCase by lazy {
+        CompleteReminderUseCase(reminderRepository)
+    }
+
+    val deleteCompletedReminderUseCase: DeleteCompletedReminderUseCase by lazy {
+        DeleteCompletedReminderUseCase(reminderRepository)
+    }
+
+    val deleteReminderUseCase: DeleteReminderUseCase by lazy {
+        DeleteReminderUseCase(reminderRepository)
     }
 
     val observeFavoriteNewsUseCase: ObserveFavoriteNewsUseCase by lazy {

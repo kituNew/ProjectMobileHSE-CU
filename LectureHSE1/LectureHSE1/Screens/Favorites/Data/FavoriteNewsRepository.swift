@@ -19,72 +19,52 @@ final class CoreDataFavoriteNewsRepository: FavoriteNewsRepositoryProtocol {
 
     func fetchFavorites() throws -> [New] {
         let context = coreDataStack.viewContext
-        var result: Result<[New], Error>!
 
-        context.performAndWait {
-            result = Result {
-                try fetchFavorites(context: context)
-            }
+        return try context.performAndWaitResult {
+            try fetchFavorites(context: context)
         }
-
-        return try result.get()
     }
 
     func isFavorite(_ news: New) throws -> Bool {
         let context = coreDataStack.viewContext
-        var result: Result<Bool, Error>!
 
-        context.performAndWait {
-            result = Result {
-                try fetchFavoriteObject(id: news.cacheIdentifier, context: context) != nil
-            }
+        return try context.performAndWaitResult {
+            try fetchFavoriteObject(id: news.cacheIdentifier, context: context) != nil
         }
-
-        return try result.get()
     }
 
     func toggleFavorite(_ news: New) throws -> [New] {
         let context = coreDataStack.viewContext
-        var result: Result<[New], Error>!
 
-        context.performAndWait {
-            result = Result {
-                if let object = try fetchFavoriteObject(id: news.cacheIdentifier, context: context) {
-                    context.delete(object)
-                } else {
-                    let object = NSEntityDescription.insertNewObject(
-                        forEntityName: CoreDataEntity.favoriteNews,
-                        into: context
-                    )
-                    object.setValue(news.cacheIdentifier, forKey: "id")
-                    object.setValue(try encoder.encode(news), forKey: "payload")
-                    object.setValue(Date(), forKey: "cachedAt")
-                }
-
-                try coreDataStack.saveIfNeeded()
-                return try fetchFavorites(context: context)
+        return try context.performAndWaitResult {
+            if let object = try fetchFavoriteObject(id: news.cacheIdentifier, context: context) {
+                context.delete(object)
+            } else {
+                let object = NSEntityDescription.insertNewObject(
+                    forEntityName: CoreDataEntity.favoriteNews,
+                    into: context
+                )
+                object.setValue(news.cacheIdentifier, forKey: "id")
+                object.setValue(try encoder.encode(news), forKey: "payload")
+                object.setValue(Date(), forKey: "cachedAt")
             }
-        }
 
-        return try result.get()
+            try coreDataStack.saveIfNeeded()
+            return try fetchFavorites(context: context)
+        }
     }
 
     func removeFavorite(_ news: New) throws -> [New] {
         let context = coreDataStack.viewContext
-        var result: Result<[New], Error>!
 
-        context.performAndWait {
-            result = Result {
-                if let object = try fetchFavoriteObject(id: news.cacheIdentifier, context: context) {
-                    context.delete(object)
-                    try coreDataStack.saveIfNeeded()
-                }
-
-                return try fetchFavorites(context: context)
+        return try context.performAndWaitResult {
+            if let object = try fetchFavoriteObject(id: news.cacheIdentifier, context: context) {
+                context.delete(object)
+                try coreDataStack.saveIfNeeded()
             }
-        }
 
-        return try result.get()
+            return try fetchFavorites(context: context)
+        }
     }
 
     private func fetchFavoriteObject(

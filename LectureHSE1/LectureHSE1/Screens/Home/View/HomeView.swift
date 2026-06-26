@@ -46,7 +46,7 @@ final class HomeView: UIViewController {
     
     private let searchField: UITextField = {
         let tf = UITextField()
-        tf.text = "beer"
+        tf.text = ""
         tf.placeholder = "Введите текст…"
         tf.borderStyle = .roundedRect
         tf.clearButtonMode = .whileEditing

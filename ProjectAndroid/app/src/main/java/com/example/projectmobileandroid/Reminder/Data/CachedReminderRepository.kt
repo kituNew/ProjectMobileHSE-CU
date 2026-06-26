@@ -1,7 +1,7 @@
 package com.example.projectmobileandroid.Reminder.Data
 
 import android.content.Context
-import com.example.projectmobileandroid.Reminder.Domain.ReminderRepository
+import com.example.projectmobileandroid.Reminder.Data.ReminderRepository
 import com.example.projectmobileandroid.Reminder.Model.Priority
 import com.example.projectmobileandroid.Reminder.Model.Reminder
 import kotlinx.coroutines.flow.MutableStateFlow

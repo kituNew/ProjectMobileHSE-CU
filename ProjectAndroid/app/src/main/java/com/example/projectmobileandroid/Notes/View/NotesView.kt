@@ -52,7 +52,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.projectmobileandroid.DI.AppContainer
-import com.example.projectmobileandroid.Notes.Domain.Note
+import com.example.projectmobileandroid.Notes.Model.Note
 import com.example.projectmobileandroid.Notes.ViewModel.NotesViewModel
 import java.text.SimpleDateFormat
 import java.util.Date

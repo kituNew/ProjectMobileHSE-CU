@@ -1,8 +1,8 @@
 package com.example.projectmobileandroid.Notes.Data
 
 import android.content.Context
-import com.example.projectmobileandroid.Notes.Domain.Note
-import com.example.projectmobileandroid.Notes.Domain.NotesRepository
+import com.example.projectmobileandroid.Notes.Model.Note
+import com.example.projectmobileandroid.Notes.Data.NotesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update

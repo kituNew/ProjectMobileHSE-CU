@@ -7,21 +7,28 @@
 import UIKit
 
 final class ReminderView: UIViewController {
-    
-    let viewModel: ReminderViewModel
-    
-    var items: [Reminder] = []
-    
-    init(viewModel: ReminderViewModel) {
-        self.viewModel = viewModel
+
+    private let presenter: ReminderPresenting
+
+    private var items: [Reminder] = []
+
+    init(presenter: ReminderPresenting) {
+        self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
-        self.viewModel = ReminderViewModel(
-            repository: CoreDataReminderRepository(coreDataStack: CoreDataStack())
+        let repository = CoreDataReminderRepository(coreDataStack: CoreDataStack())
+        self.presenter = ReminderPresenter(
+            fetchRemindersUseCase: FetchRemindersUseCase(repository: repository),
+            saveReminderUseCase: SaveReminderUseCase(repository: repository),
+            deleteReminderUseCase: DeleteReminderUseCase(repository: repository),
+            router: ReminderRouter()
         )
         super.init(coder: coder)
+        if let presenter = presenter as? ReminderPresenter {
+            presenter.view = self
+        }
     }
     
     private lazy var label: UILabel = {
@@ -48,18 +55,11 @@ final class ReminderView: UIViewController {
     }()
     
     @objc private func didTapButton() {
-        self.present(ReminderDetails(addNewReminder: { [weak self] reminder in
-            guard let self = self else { return }
-            self.items = self.viewModel.addReminder(reminder)
-            self.tableView.reloadData()
-        } ), animated: true)
+        presenter.addReminderTapped()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        items = viewModel.loadReminders()
-        tableView.reloadData()
         
         tableView.backgroundColor = .systemGroupedBackground
         tableView.separatorStyle = .none
@@ -90,6 +90,8 @@ final class ReminderView: UIViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+
+        presenter.viewDidLoad()
     }
 }
 
@@ -104,10 +106,12 @@ extension ReminderView: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
+        guard let cell = tableView.dequeueReusableCell(
             withIdentifier: ReminderViewCell.reuseIdentifier,
             for: indexPath
-        ) as! ReminderViewCell
+        ) as? ReminderViewCell else {
+            return UITableViewCell()
+        }
 
         let reminder = items[indexPath.row]
         cell.delegate = self
@@ -128,14 +132,30 @@ extension ReminderView: ReminderViewCellDelegate {
     func reminderCell(_ cell: ReminderViewCell, didChangeDone isDone: Bool) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         items[indexPath.row].isDone = isDone
-        items = viewModel.updateReminder(items[indexPath.row])
-        tableView.reloadData()
+        presenter.updateReminder(items[indexPath.row])
     }
 
     func reminderCellDidRequestRemoval(_ cell: ReminderViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         let reminder = items[indexPath.row]
-        items = viewModel.deleteReminder(id: reminder.id)
+        presenter.deleteReminder(id: reminder.id)
+    }
+}
+
+extension ReminderView: ReminderViewProtocol {
+
+    func showReminders(_ reminders: [Reminder]) {
+        items = reminders
         tableView.reloadData()
+    }
+
+    func showError(_ message: String) {
+        let alert = UIAlertController(
+            title: "Ошибка",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "ОК", style: .default))
+        present(alert, animated: true)
     }
 }

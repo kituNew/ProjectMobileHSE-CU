@@ -50,8 +50,16 @@ final class DIContainer {
 
     private func makeReminderNavigationController() -> UINavigationController {
         let reminderRepository = CoreDataReminderRepository(coreDataStack: coreDataStack)
-        let reminderVM = ReminderViewModel(repository: reminderRepository)
-        let reminderVC = ReminderView(viewModel: reminderVM)
+        let router = ReminderRouter()
+        let presenter = ReminderPresenter(
+            fetchRemindersUseCase: FetchRemindersUseCase(repository: reminderRepository),
+            saveReminderUseCase: SaveReminderUseCase(repository: reminderRepository),
+            deleteReminderUseCase: DeleteReminderUseCase(repository: reminderRepository),
+            router: router
+        )
+        let reminderVC = ReminderView(presenter: presenter)
+        presenter.view = reminderVC
+        router.viewController = reminderVC
         let navigationController = UINavigationController(rootViewController: reminderVC)
         navigationController.tabBarItem = UITabBarItem(
             title: "Задачи",

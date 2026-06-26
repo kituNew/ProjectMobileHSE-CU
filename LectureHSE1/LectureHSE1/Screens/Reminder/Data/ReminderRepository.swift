@@ -16,65 +16,50 @@ final class CoreDataReminderRepository: ReminderRepositoryProtocol {
 
     func fetchReminders() throws -> [Reminder] {
         let context = coreDataStack.viewContext
-        var result: Result<[Reminder], Error>!
 
-        context.performAndWait {
-            result = Result {
-                try fetchReminders(context: context)
-            }
+        return try context.performAndWaitResult {
+            try fetchReminders(context: context)
         }
-
-        return try result.get()
     }
 
     func saveReminder(_ reminder: Reminder) throws -> [Reminder] {
         let context = coreDataStack.viewContext
-        var result: Result<[Reminder], Error>!
 
-        context.performAndWait {
-            result = Result {
-                let object = try fetchReminderObject(id: reminder.id, context: context)
-                    ?? NSEntityDescription.insertNewObject(
-                        forEntityName: CoreDataEntity.reminder,
-                        into: context
-                    )
+        return try context.performAndWaitResult {
+            let object = try fetchReminderObject(id: reminder.id, context: context)
+                ?? NSEntityDescription.insertNewObject(
+                    forEntityName: CoreDataEntity.reminder,
+                    into: context
+                )
 
-                object.setValue(reminder.id, forKey: "id")
-                object.setValue(reminder.text, forKey: "text")
-                object.setValue(reminder.description, forKey: "reminderDescription")
-                object.setValue(Int16(reminder.priority.rawValue), forKey: "priorityRaw")
-                object.setValue(reminder.flag, forKey: "flag")
-                object.setValue(reminder.toDate, forKey: "toDate")
-                object.setValue(reminder.isDone, forKey: "isDone")
+            object.setValue(reminder.id, forKey: "id")
+            object.setValue(reminder.text, forKey: "text")
+            object.setValue(reminder.description, forKey: "reminderDescription")
+            object.setValue(Int16(reminder.priority.rawValue), forKey: "priorityRaw")
+            object.setValue(reminder.flag, forKey: "flag")
+            object.setValue(reminder.toDate, forKey: "toDate")
+            object.setValue(reminder.isDone, forKey: "isDone")
 
-                if object.value(forKey: "createdAt") == nil {
-                    object.setValue(Date(), forKey: "createdAt")
-                }
-
-                try coreDataStack.saveIfNeeded()
-                return try fetchReminders(context: context)
+            if object.value(forKey: "createdAt") == nil {
+                object.setValue(Date(), forKey: "createdAt")
             }
-        }
 
-        return try result.get()
+            try coreDataStack.saveIfNeeded()
+            return try fetchReminders(context: context)
+        }
     }
 
     func deleteReminder(id: String) throws -> [Reminder] {
         let context = coreDataStack.viewContext
-        var result: Result<[Reminder], Error>!
 
-        context.performAndWait {
-            result = Result {
-                if let object = try fetchReminderObject(id: id, context: context) {
-                    context.delete(object)
-                    try coreDataStack.saveIfNeeded()
-                }
-
-                return try fetchReminders(context: context)
+        return try context.performAndWaitResult {
+            if let object = try fetchReminderObject(id: id, context: context) {
+                context.delete(object)
+                try coreDataStack.saveIfNeeded()
             }
-        }
 
-        return try result.get()
+            return try fetchReminders(context: context)
+        }
     }
 
     private func fetchReminderObject(

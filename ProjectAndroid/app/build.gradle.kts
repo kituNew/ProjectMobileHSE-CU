@@ -48,6 +48,16 @@ android {
         compose = true
         buildConfig = true
     }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
+
+    sourceSets {
+        getByName("test") {
+            java.srcDir(rootProject.file("tests"))
+        }
+    }
 }
 
 dependencies {
@@ -79,6 +89,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

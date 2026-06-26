@@ -19,9 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import com.example.projectmobileandroid.Reminder.Model.Reminder
-
-
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.projectmobileandroid.Reminder.Model.Priority
+import com.example.projectmobileandroid.Reminder.Model.Reminder
 
 @Composable
 fun AddReminderScreen(
@@ -62,6 +60,16 @@ fun AddReminderScreen(
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            TextButton(
+                onClick = onCancel
+            ) {
+                Text(
+                    text = "Отмена",
+                    color = Color.Gray,
+                    fontSize = 18.sp
+                )
+            }
+
             TextButton(
                 onClick = {
                     if (title.isNotBlank()) {

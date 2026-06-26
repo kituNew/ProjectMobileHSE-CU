@@ -19,7 +19,7 @@ final class HomePresenter: HomePresenting {
     private let searchNewsUseCase: SearchNewsUseCaseProtocol
     private let loadImageUseCase: LoadNewsImageUseCaseProtocol
     private let router: HomeRouting
-    private var currentQuery = "beer"
+    private var currentQuery = "buisness"
 
     init(
         searchNewsUseCase: SearchNewsUseCaseProtocol,

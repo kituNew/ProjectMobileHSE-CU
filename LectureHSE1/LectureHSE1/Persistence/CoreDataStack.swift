@@ -14,14 +14,18 @@ final class CoreDataStack {
             managedObjectModel: Self.makeModel()
         )
 
-        if inMemory {
-            container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
+        guard let storeDescription = container.persistentStoreDescriptions.first else {
+            fatalError("Core Data store description is missing")
         }
-        container.persistentStoreDescriptions.first?.setOption(
+
+        if inMemory {
+            storeDescription.url = URL(fileURLWithPath: "/dev/null")
+        }
+        storeDescription.setOption(
             true as NSNumber,
             forKey: NSMigratePersistentStoresAutomaticallyOption
         )
-        container.persistentStoreDescriptions.first?.setOption(
+        storeDescription.setOption(
             true as NSNumber,
             forKey: NSInferMappingModelAutomaticallyOption
         )

@@ -16,58 +16,43 @@ final class CoreDataNotesRepository: NotesRepositoryProtocol {
 
     func fetchNotes() throws -> [Note] {
         let context = coreDataStack.viewContext
-        var result: Result<[Note], Error>!
 
-        context.performAndWait {
-            result = Result {
-                try fetchNotes(context: context)
-            }
+        return try context.performAndWaitResult {
+            try fetchNotes(context: context)
         }
-
-        return try result.get()
     }
 
     func saveNote(_ note: Note) throws -> [Note] {
         let context = coreDataStack.viewContext
-        var result: Result<[Note], Error>!
 
-        context.performAndWait {
-            result = Result {
-                let object = try fetchNoteObject(id: note.id, context: context)
-                    ?? NSEntityDescription.insertNewObject(
-                        forEntityName: CoreDataEntity.note,
-                        into: context
-                    )
+        return try context.performAndWaitResult {
+            let object = try fetchNoteObject(id: note.id, context: context)
+                ?? NSEntityDescription.insertNewObject(
+                    forEntityName: CoreDataEntity.note,
+                    into: context
+                )
 
-                object.setValue(note.id, forKey: "id")
-                object.setValue(note.title, forKey: "title")
-                object.setValue(note.text, forKey: "text")
-                object.setValue(note.updatedAt, forKey: "updatedAt")
+            object.setValue(note.id, forKey: "id")
+            object.setValue(note.title, forKey: "title")
+            object.setValue(note.text, forKey: "text")
+            object.setValue(note.updatedAt, forKey: "updatedAt")
 
-                try coreDataStack.saveIfNeeded()
-                return try fetchNotes(context: context)
-            }
+            try coreDataStack.saveIfNeeded()
+            return try fetchNotes(context: context)
         }
-
-        return try result.get()
     }
 
     func deleteNote(id: String) throws -> [Note] {
         let context = coreDataStack.viewContext
-        var result: Result<[Note], Error>!
 
-        context.performAndWait {
-            result = Result {
-                if let object = try fetchNoteObject(id: id, context: context) {
-                    context.delete(object)
-                    try coreDataStack.saveIfNeeded()
-                }
-
-                return try fetchNotes(context: context)
+        return try context.performAndWaitResult {
+            if let object = try fetchNoteObject(id: id, context: context) {
+                context.delete(object)
+                try coreDataStack.saveIfNeeded()
             }
-        }
 
-        return try result.get()
+            return try fetchNotes(context: context)
+        }
     }
 
     private func fetchNoteObject(

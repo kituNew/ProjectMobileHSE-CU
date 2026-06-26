@@ -22,7 +22,7 @@ class HomeViewModel(
     private val getNewsUseCase: GetNewsUseCase
 ) : ViewModel() {
 
-    private var currentQuery = "beer"
+    private var currentQuery = "buisness"
 
     private val _uiState = MutableStateFlow(HomeUiState(query = currentQuery))
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()

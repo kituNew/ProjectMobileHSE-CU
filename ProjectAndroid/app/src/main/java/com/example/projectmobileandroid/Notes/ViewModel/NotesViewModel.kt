@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.projectmobileandroid.Notes.Domain.DeleteNoteUseCase
 import com.example.projectmobileandroid.Notes.Domain.GetNoteUseCase
-import com.example.projectmobileandroid.Notes.Domain.Note
+import com.example.projectmobileandroid.Notes.Model.Note
 import com.example.projectmobileandroid.Notes.Domain.ObserveNotesUseCase
 import com.example.projectmobileandroid.Notes.Domain.SaveNoteUseCase
 import kotlinx.coroutines.flow.StateFlow

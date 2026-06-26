@@ -44,24 +44,19 @@ final class NewsRepository: NewsRepositoryProtocol {
 
     private func fetchCachedNews(queryKey: String) throws -> [New] {
         let context = coreDataStack.viewContext
-        var result: Result<[New], Error>!
 
-        context.performAndWait {
-            result = Result {
-                let request = NSFetchRequest<NSManagedObject>(entityName: CoreDataEntity.cachedNews)
-                request.predicate = NSPredicate(format: "query == %@", queryKey)
-                request.sortDescriptors = [
-                    NSSortDescriptor(key: "cachedAt", ascending: false)
-                ]
+        return try context.performAndWaitResult {
+            let request = NSFetchRequest<NSManagedObject>(entityName: CoreDataEntity.cachedNews)
+            request.predicate = NSPredicate(format: "query == %@", queryKey)
+            request.sortDescriptors = [
+                NSSortDescriptor(key: "cachedAt", ascending: false)
+            ]
 
-                return try context.fetch(request).compactMap { object in
-                    guard let payload = object.value(forKey: "payload") as? Data else { return nil }
-                    return try? decoder.decode(New.self, from: payload)
-                }
+            return try context.fetch(request).compactMap { object in
+                guard let payload = object.value(forKey: "payload") as? Data else { return nil }
+                return try? decoder.decode(New.self, from: payload)
             }
         }
-
-        return try result.get()
     }
 
     private func saveCachedNews(
@@ -69,30 +64,25 @@ final class NewsRepository: NewsRepositoryProtocol {
         queryKey: String
     ) throws {
         let context = coreDataStack.viewContext
-        var result: Result<Void, Error>!
 
-        context.performAndWait {
-            result = Result {
-                let deleteRequest = NSFetchRequest<NSFetchRequestResult>(entityName: CoreDataEntity.cachedNews)
-                deleteRequest.predicate = NSPredicate(format: "query == %@", queryKey)
-                let batchDelete = NSBatchDeleteRequest(fetchRequest: deleteRequest)
-                try context.execute(batchDelete)
+        try context.performAndWaitResult {
+            let deleteRequest = NSFetchRequest<NSFetchRequestResult>(entityName: CoreDataEntity.cachedNews)
+            deleteRequest.predicate = NSPredicate(format: "query == %@", queryKey)
+            let batchDelete = NSBatchDeleteRequest(fetchRequest: deleteRequest)
+            try context.execute(batchDelete)
 
-                for article in news {
-                    let object = NSEntityDescription.insertNewObject(
-                        forEntityName: CoreDataEntity.cachedNews,
-                        into: context
-                    )
-                    object.setValue(article.id.uuidString, forKey: "id")
-                    object.setValue(queryKey, forKey: "query")
-                    object.setValue(try encoder.encode(article), forKey: "payload")
-                    object.setValue(Date(), forKey: "cachedAt")
-                }
-
-                try coreDataStack.saveIfNeeded()
+            for article in news {
+                let object = NSEntityDescription.insertNewObject(
+                    forEntityName: CoreDataEntity.cachedNews,
+                    into: context
+                )
+                object.setValue(article.id.uuidString, forKey: "id")
+                object.setValue(queryKey, forKey: "query")
+                object.setValue(try encoder.encode(article), forKey: "payload")
+                object.setValue(Date(), forKey: "cachedAt")
             }
-        }
 
-        try result.get()
+            try coreDataStack.saveIfNeeded()
+        }
     }
 }

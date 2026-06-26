@@ -15,6 +15,7 @@ material3 = "1.4.0"
 benchmarkCommon = "1.4.1"
 compiler = "3.2.0-alpha11"
 volley = "1.2.1"
+coroutinesTest = "1.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -39,6 +40,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3",
 androidx-benchmark-common = { group = "androidx.benchmark", name = "benchmark-common", version.ref = "benchmarkCommon" }
 androidx-compiler = { group = "androidx.databinding", name = "compiler", version.ref = "compiler" }
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
