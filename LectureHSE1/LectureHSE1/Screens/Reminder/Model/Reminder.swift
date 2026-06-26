@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 
 struct Reminder {
+    var id: String = UUID().uuidString
     var text: String
     var description: String
     var priority: Priority
@@ -18,10 +19,10 @@ struct Reminder {
     var isDone: Bool = false
 }
 
-enum Priority: String, CaseIterable {
-    case high
-    case medium
-    case low
+enum Priority: Int, CaseIterable {
+    case high = 2
+    case medium = 1
+    case low = 0
     
     var color: UIColor {
         switch self {

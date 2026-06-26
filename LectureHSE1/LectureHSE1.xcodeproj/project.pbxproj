@@ -6,8 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		F4B2EFDE2AE84A91957390B3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 315AB6482ECB2D4B00D71B30 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 315AB64F2ECB2D4B00D71B30;
+			remoteInfo = LectureHSE1;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		315AB6502ECB2D4B00D71B30 /* LectureHSE1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LectureHSE1.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DCB9E4C5503F4A149A1E6E0B /* LectureHSE1Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LectureHSE1Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -29,10 +40,22 @@
 			path = LectureHSE1;
 			sourceTree = "<group>";
 		};
+		A6237B76A7AF48AF94B93F6D /* LectureHSE1Tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = LectureHSE1Tests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		315AB64D2ECB2D4B00D71B30 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CBC7B469486A4C2A962B96A3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -46,6 +69,7 @@
 			isa = PBXGroup;
 			children = (
 				315AB6522ECB2D4B00D71B30 /* LectureHSE1 */,
+				A6237B76A7AF48AF94B93F6D /* LectureHSE1Tests */,
 				315AB6512ECB2D4B00D71B30 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				315AB6502ECB2D4B00D71B30 /* LectureHSE1.app */,
+				DCB9E4C5503F4A149A1E6E0B /* LectureHSE1Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,6 +86,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		24D6441A3C4A401D91489EAD /* LectureHSE1Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 09C06F1A29004AD29FE623A4 /* Build configuration list for PBXNativeTarget "LectureHSE1Tests" */;
+			buildPhases = (
+				4D37C3A6DB4C443F873AE2AC /* Sources */,
+				CBC7B469486A4C2A962B96A3 /* Frameworks */,
+				0F8BC278C60D437EA47A9DA2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				79CE51D6EC3F4CAEA91E438B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A6237B76A7AF48AF94B93F6D /* LectureHSE1Tests */,
+			);
+			name = LectureHSE1Tests;
+			packageProductDependencies = (
+			);
+			productName = LectureHSE1Tests;
+			productReference = DCB9E4C5503F4A149A1E6E0B /* LectureHSE1Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		315AB64F2ECB2D4B00D71B30 /* LectureHSE1 */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 315AB6632ECB2D4D00D71B30 /* Build configuration list for PBXNativeTarget "LectureHSE1" */;
@@ -93,6 +141,10 @@
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
+					24D6441A3C4A401D91489EAD = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 315AB64F2ECB2D4B00D71B30;
+					};
 					315AB64F2ECB2D4B00D71B30 = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -113,11 +165,19 @@
 			projectRoot = "";
 			targets = (
 				315AB64F2ECB2D4B00D71B30 /* LectureHSE1 */,
+				24D6441A3C4A401D91489EAD /* LectureHSE1Tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0F8BC278C60D437EA47A9DA2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		315AB64E2ECB2D4B00D71B30 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -135,9 +195,50 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4D37C3A6DB4C443F873AE2AC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		79CE51D6EC3F4CAEA91E438B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 315AB64F2ECB2D4B00D71B30 /* LectureHSE1 */;
+			targetProxy = F4B2EFDE2AE84A91957390B3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		27CEEE51680042E28508FF73 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B2YMYHDTYQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ios.LectureHSE1Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LectureHSE1.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LectureHSE1";
+			};
+			name = Release;
+		};
 		315AB6642ECB2D4D00D71B30 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -313,9 +414,44 @@
 			};
 			name = Release;
 		};
+		6F239EEF4CE84E9EAA2951A0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B2YMYHDTYQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ios.LectureHSE1Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LectureHSE1.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LectureHSE1";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		09C06F1A29004AD29FE623A4 /* Build configuration list for PBXNativeTarget "LectureHSE1Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6F239EEF4CE84E9EAA2951A0 /* Debug */,
+				27CEEE51680042E28508FF73 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		315AB64B2ECB2D4B00D71B30 /* Build configuration list for PBXProject "LectureHSE1" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

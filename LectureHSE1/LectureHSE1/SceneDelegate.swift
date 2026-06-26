@@ -15,7 +15,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
-        let di = DI()
+        let di = DIContainer()
 
         let window = UIWindow(windowScene: windowScene)
         window.rootViewController = di.makeTabBarController()
@@ -53,4 +53,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
 }
-

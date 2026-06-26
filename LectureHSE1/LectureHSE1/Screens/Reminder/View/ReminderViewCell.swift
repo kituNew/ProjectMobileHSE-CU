@@ -22,7 +22,11 @@ final class ReminderViewCell: UITableViewCell {
     private let difficultyStack = UIStackView()
     private var difficultyDots: [UIView] = []
     
-    private var isImportant: Bool = false
+    private var isImportant: Bool = false {
+        didSet {
+            exclamationLabel.isHidden = !isImportant
+        }
+    }
 
     private var internalIsDone = false
 
@@ -46,6 +50,7 @@ final class ReminderViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         internalIsDone = false
+        isImportant = false
         cardView.alpha = 1
         titleLabel.attributedText = nil
         descriptionLabel.attributedText = nil
@@ -180,7 +185,6 @@ final class ReminderViewCell: UITableViewCell {
         exclamationLabel.text = "!"
         exclamationLabel.textColor = .systemRed
         exclamationLabel.font = .boldSystemFont(ofSize: 20)
-        exclamationLabel.isHidden = !isImportant
 
         difficultyStack.axis = .horizontal
         difficultyStack.alignment = .center
